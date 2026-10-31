@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-title" content="COMPOSE日報">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=1.0.1">
   <meta name="description" content="COMPOSE 門市日報：本機準備、免登入點算簽名、下載 PDF。">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=' 'sha256-o4dl87PFCIQh6nDVzAtiu3pIlfW2go3oxOaB0ib4BtY='; style-src 'sha256-qZUVa1dUoYM8h12rRy9BiMsjDkG+oRaqLjo9f8PoqrQ='; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=' 'sha256-dFdKH81N1RV+Q3e0kGdj1hFuNDSahPjfWT5eHKXnEWU='; style-src 'sha256-qZUVa1dUoYM8h12rRy9BiMsjDkG+oRaqLjo9f8PoqrQ='; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <!-- Bundled pdf-lib license:
 MIT License
 
@@ -40,7 +40,7 @@ SOFTWARE.
 </head>
 <body>
 <div class="app">
-  <header class="brand"><div class="brand-top"><span class="wordmark"><img src="wordmark.png?v=1.0.2" alt="COMPOSE COFFEE"></span><span class="version">日報 v1.1</span></div><h1>門市日報</h1><p id="subtitle">WE COMPOSE BEST COFFEE</p></header>
+  <header class="brand"><div class="brand-top"><span class="wordmark"><img src="wordmark.png?v=1.0.2" alt="COMPOSE COFFEE"></span><span class="version">日報 v1.2</span></div><h1>門市日報</h1><p id="subtitle">WE COMPOSE BEST COFFEE</p></header>
   <main>
     <nav id="home-tabs" class="home-tabs" aria-label="首頁分頁"><button type="button" id="tab-prepare" aria-pressed="true">建立日報</button><button type="button" id="tab-month" aria-pressed="false">當月收銀損益</button></nav>
     <section id="prepare">
@@ -48,7 +48,7 @@ SOFTWARE.
       <p class="help">資料只在此裝置處理。確認後產生連結，親點人員免登入填金額、簽名。</p>
       <details class="import-box"><summary>從 AutoPOS 複製表格帶入</summary><p class="help">目前支援貼上表格，尚未直接連接 AutoPOS。分別複製「門市營業匯總」與「門市收款統計」的表頭及同一天、同一間門市的一列資料。</p><label>門市營業匯總<textarea id="summary-paste" rows="3" placeholder="營業日期　門市名稱　營業收入　商品件數…"></textarea></label><label>門市收款統計<textarea id="receipt-paste" rows="3" placeholder="營業日期　門市名稱　現金　聯合信用卡　LINE Pay…"></textarea></label><button type="button" id="parse-tables">解析並預覽</button><div id="import-preview" hidden><dl id="import-values"></dl><button type="button" id="apply-import">確認帶入下方欄位</button></div><p id="import-status" role="status"></p></details>
       <form id="prepare-form" novalidate>
-        <div class="two"><label>營業日期<input id="date" type="date" required></label><label>門市名稱<input id="store" type="text" maxlength="32" placeholder="請填寫門市" required></label></div>
+        <div class="two"><label>營業日期<input id="date" type="date" required></label><label>門市名稱<input id="store" type="text" maxlength="32" value="高雄篤敬店" required></label></div>
         <div class="heading spaced"><h2>營業資料</h2><span class="muted">請核對來源</span></div>
         <label>銷售總金額（AutoPOS 營業收入）<div class="money"><input id="revenue" inputmode="numeric" type="number" min="0" step="1" placeholder="請填寫" required><span>元</span></div></label>
         <div class="two"><label>現金（AutoPOS）<input id="cash" type="number" min="0" step="1" inputmode="numeric" placeholder="請填寫" required></label><label>Linepay<input id="linepay" type="number" min="0" step="1" inputmode="numeric" placeholder="請填寫" required></label><label>信用卡<input id="credit" type="number" min="0" step="1" inputmode="numeric" placeholder="請填寫" required></label><label>銷售總杯數（商品件數）<input id="cups" type="number" min="0" step="1" inputmode="numeric" placeholder="請填寫" required></label></div>
@@ -62,7 +62,7 @@ SOFTWARE.
       <div class="actions"><button type="button" id="save-draft">儲存本機草稿</button><button type="button" id="restore-draft">讀取本機草稿</button></div><p id="draft-status" class="help" role="status"></p>
       <section id="share-panel" class="share-panel" hidden><div class="heading"><h2>日報已準備好</h2><span class="tag">待親點</span></div><dl id="prepared-values"></dl><label>親點專屬連結<textarea id="share-url" rows="3" readonly aria-label="親點專屬連結"></textarea></label><p class="help">連結含這張日報資料，取得連結即可查看。請傳給指定人員；帳密與簽名不放在連結中。</p><div class="actions"><button type="button" id="copy-link">複製連結</button><button type="button" id="share-link" class="primary">分享到 LINE</button></div><button type="button" id="preview-count" class="full">預覽親點人員畫面</button><p id="share-status" role="status"></p></section>
     </section>
-    <section id="monthly" hidden><div class="heading"><h2>當月收銀損益</h2></div><div class="two"><label>門市<input id="ledger-store" maxlength="32" placeholder="請填寫門市"></label><label>統計月份<input id="ledger-month" type="month"></label></div><div class="month-metric"><span>月累計收銀損益</span><strong id="ledger-net">0 元</strong><span id="ledger-count" class="help">本機已匯入 0 筆</span></div><dl><div><dt>溢收合計</dt><dd id="ledger-positive">0 元</dd></div><div><dt>短少合計</dt><dd id="ledger-negative">0 元</dd></div></dl><h2>每日明細</h2><div class="ledger-table"><table><thead><tr><th>日期</th><th>親點金額</th><th>收銀損益</th></tr></thead><tbody id="ledger-rows"></tbody></table></div><p id="ledger-empty" class="help center">本月尚無已匯入的完成紀錄</p><label class="spaced">匯入門市回傳紀錄（JSON）<input id="record-file" type="file" accept=".json,application/json"></label><div id="record-review" class="share-panel" hidden><h2>核對回傳紀錄</h2><dl id="record-values"></dl><p id="record-conflict" class="help"></p><button type="button" id="confirm-record" class="primary full">確認匯入</button></div><p id="ledger-status" role="status" class="help"></p><button type="button" id="export-ledger" class="full">下載全部紀錄備份</button><label class="spaced">匯入備份<input id="backup-file" type="file" accept=".json,application/json"></label><p class="help">統計只包含此瀏覽器已匯入的紀錄，並非整月即時帳務。請保留回傳 PDF 與紀錄檔，並定期下載備份；清除瀏覽器資料或換手機不會自動同步。</p></section>
+    <section id="monthly" hidden><div class="heading"><h2>當月收銀損益</h2></div><div class="two"><label>門市<input id="ledger-store" maxlength="32" value="高雄篤敬店"></label><label>統計月份<input id="ledger-month" type="month"></label></div><div class="month-metric"><span>月累計收銀損益</span><strong id="ledger-net">0 元</strong><span id="ledger-count" class="help">本機已匯入 0 筆</span></div><dl><div><dt>溢收合計</dt><dd id="ledger-positive">0 元</dd></div><div><dt>短少合計</dt><dd id="ledger-negative">0 元</dd></div></dl><h2>每日明細</h2><div class="ledger-table"><table><thead><tr><th>日期</th><th>親點金額</th><th>收銀損益</th></tr></thead><tbody id="ledger-rows"></tbody></table></div><p id="ledger-empty" class="help center">本月尚無已匯入的完成紀錄</p><label class="spaced">匯入門市日報 PDF<input id="record-file" type="file" accept=".pdf,application/pdf"></label><div id="record-review" class="share-panel" hidden><h2>核對日報 PDF</h2><a id="review-pdf" target="_blank" rel="noopener" hidden>開啟 PDF 查看簽名與日報</a><dl id="record-values"></dl><p id="record-conflict" class="help"></p><button type="button" id="confirm-record" class="primary full">確認匯入</button></div><p id="ledger-status" role="status" class="help"></p><button type="button" id="export-ledger" class="full">下載全部紀錄備份 PDF</button><label class="spaced">匯入備份 PDF<input id="backup-file" type="file" accept=".pdf,application/pdf"></label><p class="help">統計只包含此瀏覽器已匯入的紀錄，並非整月即時帳務。請保留各日簽名日報 PDF，並定期下載備份 PDF；清除瀏覽器資料或換手機不會自動同步。</p></section>
     <section id="count" hidden>
       <div class="heading"><h2>現金點算</h2><span class="tag">免帳號登入</span></div><p id="receiver-meta" class="help"></p><dl id="receiver-values"></dl>
 
@@ -74,10 +74,10 @@ SOFTWARE.
       <div class="heading spaced"><h2>簽名</h2><button type="button" id="clear-sign" class="quiet">清除重簽</button></div><canvas id="signature" width="1000" height="360" aria-label="請使用手指或滑鼠在此簽名">請使用支援觸控簽名的瀏覽器。</canvas><p class="help center">請以手指或滑鼠簽名</p>
       <p id="count-error" role="alert" class="error" hidden></p><button type="button" id="finish" class="primary full">確認金額與簽名，產生日報 PDF</button><button type="button" id="back-prepare" class="full" hidden>返回準備資料</button>
     </section>
-    <section id="complete" hidden><div class="heading"><h2>日報 PDF 已產生</h2><span class="tag">待回傳</span></div><p class="help">請把 PDF 與紀錄檔一併回傳準備人員；紀錄檔匯入後才能更新月統計。本網站不會自動發送。</p><img id="report-preview" alt="已填寫金額與簽名的日報預覽"><div class="actions"><button id="download-pdf" type="button">下載 PDF</button><button id="share-pdf" type="button" class="primary">分享 PDF 到 LINE</button></div><div class="actions"><button id="download-record" type="button">下載紀錄檔</button><button id="share-record" type="button">分享 PDF＋紀錄到 LINE</button></div><button type="button" id="download-image" class="full">另存日報圖片</button><button type="button" id="edit-count" class="full">返回修改金額／簽名</button><p id="complete-status" role="status"></p><p class="help">金額修改後須重新簽名、產生新的 PDF。</p></section>
+    <section id="complete" hidden><div class="heading"><h2>日報 PDF 已產生</h2><span class="tag">待回傳</span></div><p class="help">這份 PDF 包含簽名日報與可匯入的金額紀錄。請將原始 PDF 回傳老闆，老闆核對匯入後即可更新月統計。</p><img id="report-preview" alt="已填寫金額與簽名的日報預覽"><div class="actions"><button id="download-pdf" type="button">下載日報 PDF</button><button id="share-pdf" type="button" class="primary">分享日報 PDF 到 LINE</button></div><button type="button" id="edit-count" class="full">返回修改金額／簽名</button><p id="complete-status" role="status"></p><p class="help">金額修改後須重新簽名、產生新的 PDF。</p></section>
     <section id="bad-link" hidden><h2>無法開啟這張日報</h2><p id="bad-link-message" class="error"></p><p>請準備人員重新複製完整連結。</p></section>
-    <details class="usage"><summary>使用方式與資料保存</summary><p>準備人員：填寫或貼上 AutoPOS 表格 → 核對 → 分享日報連結。</p><p>親點人員：點連結 → 填親點金額與零用金支出 → 確認本月損益 → 簽名 → 回傳 PDF 與紀錄檔。</p><p>本站沒有日報伺服器與登入帳號。本機草稿與匯入的月統計保存在目前瀏覽器；簽名與完成 PDF 不會自動保存。月累計是產生連結時的已匯入紀錄，不會即時同步。請下載檔案留存。連結不會到期或提供遠端撤銷；以日報編號、日期與原始數字核對回傳檔。</p><p>在 LINE 內開啟若無法下載或分享，請改用 Safari／Chrome 開啟同一連結。</p></details>
-  </main><footer>COMPOSE 日報 · 資料在手機處理 · v1.1.0</footer>
+    <details class="usage"><summary>使用方式與資料保存</summary><p>準備人員：填寫或貼上 AutoPOS 表格 → 核對 → 分享日報連結。</p><p>親點人員：點連結 → 填親點金額與零用金支出 → 確認本月損益 → 簽名 → 回傳日報 PDF。</p><p>本站沒有日報伺服器與登入帳號。本機草稿與匯入的月統計保存在目前瀏覽器；簽名與完成 PDF 不會自動保存。月累計是產生連結時的已匯入紀錄，不會即時同步。請保留原始 PDF 檔案；截圖、另存圖片、列印成 PDF 不含可匯入紀錄。連結不會到期或提供遠端撤銷；以日報編號、日期與原始數字核對回傳 PDF。</p><p>在 LINE 內開啟若無法下載或分享，請改用 Safari／Chrome 開啟同一連結。</p></details>
+  </main><footer>COMPOSE 日報 · 資料在手機處理 · v1.2.0</footer>
 </div><noscript>此日報工具需要開啟 JavaScript。</noscript>
 <script>!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"function"==typeof define&&define.amd?define(["exports"],e):e((t=t||self).PDFLib={})}(this,(function(t){"use strict";
 /*! *****************************************************************************
@@ -149,7 +149,7 @@ function createRecord(report,counted,completedAt=new Date().toISOString()) {
   return {type:'compose-daily-record',version:1,report:r,counted:t.counted,difference:t.difference,received:t.received,completedAt};
 }
 function validateRecord(raw) {
-  if(!raw||raw.type!=='compose-daily-record'||raw.version!==1)throw new Error('請選擇門市人員回傳的日報紀錄 JSON 檔。');
+  if(!raw||raw.type!=='compose-daily-record'||raw.version!==1)throw new Error('日報內的統計紀錄格式不正確。');
   if(typeof raw.completedAt!=='string'||!Number.isFinite(Date.parse(raw.completedAt)))throw new Error('完成時間不正確。');
   const result=createRecord(raw.report,raw.counted,raw.completedAt);
   if(raw.difference!==result.difference||raw.received!==result.received)throw new Error('紀錄金額與 POS 計算不符，請重新取得完成紀錄。');
@@ -193,7 +193,49 @@ function parseTable(input, kind) {
 }
 
 
+const PDF_DATA_PREFIX='COMPOSE-DATA-V1:';
+const MAX_PDF_BYTES=25*1024*1024;
+function validatePdfData(raw) {
+  if(!raw||raw.version!==1)throw new Error('日報 PDF 資料版本不支援，請使用新版重新產生。');
+  if(raw.type==='compose-pdf-report')return {type:raw.type,version:1,record:validateRecord(raw.record)};
+  if(raw.type==='compose-pdf-backup') {
+    if(!Array.isArray(raw.records)||raw.records.length>100000||typeof raw.exportedAt!=='string'||!Number.isFinite(Date.parse(raw.exportedAt)))throw new Error('備份 PDF 資料不正確。');
+    const records=raw.records.map(validateRecord);
+    if(new Set(records.map(r=>r.report.id)).size!==records.length)throw new Error('備份 PDF 內含重複編號，未匯入。');
+    return {type:raw.type,version:1,exportedAt:raw.exportedAt,records};
+  }
+  throw new Error('這份 PDF 不是可匯入的 COMPOSE 日報或備份。');
+}
+function writePdfData(doc,data) {
+  const payload=PDF_DATA_PREFIX+JSON.stringify(validatePdfData(data));
+  if(payload.length>6*1024*1024)throw new Error('備份紀錄過大，請保留原始日報 PDF 分別匯入。');
+  doc.setSubject(payload);
+  doc.setKeywords(['COMPOSE','可匯入紀錄','v1.2']);
+}
+async function readPdfData(bytes,pdfLib=globalThis.PDFLib) {
+  if(!pdfLib)throw new Error('PDF 元件尚未載入，請重新開啟網站。');
+  if(!bytes||!bytes.byteLength||bytes.byteLength>MAX_PDF_BYTES)throw new Error('請選擇 25 MB 以內的日報 PDF。');
+  if(new TextDecoder().decode(new Uint8Array(bytes).slice(0,5))!=='%PDF-')throw new Error('請選擇新版產生的日報 PDF 檔。');
+  let doc;
+  try{doc=await pdfLib.PDFDocument.load(bytes,{updateMetadata:false});}catch{throw new Error('無法讀取這份 PDF，請使用未加密、完整下載的原始檔案。');}
+  const subject=doc.getSubject();
+  if(typeof subject!=='string'||!subject.startsWith(PDF_DATA_PREFIX))throw new Error('這份 PDF 沒有可匯入的紀錄，請使用新版重新產生日報 PDF。');
+  if(subject.length>6*1024*1024)throw new Error('PDF 紀錄超出可讀取範圍。');
+  let raw;
+  try{raw=JSON.parse(subject.slice(PDF_DATA_PREFIX.length));}catch{throw new Error('PDF 內的日報紀錄不完整，請重新取得原始 PDF。');}
+  return validatePdfData(raw);
+}
+function mergeBackup(existing,incoming) {
+  const next=existing.map(validateRecord),restored=incoming.map(validateRecord),byId=new Map(next.map(r=>[r.report.id,r]));
+  if(byId.size!==next.length||new Set(restored.map(r=>r.report.id)).size!==restored.length)throw new Error('備份紀錄編號重複，未匯入。');
+  let added=0;
+  for(const r of restored){const old=byId.get(r.report.id);if(old){if(JSON.stringify(old)!==JSON.stringify(r))throw new Error('備份與現有紀錄衝突，未匯入。請以單份日報 PDF 核對取代。');}else{next.push(r);byId.set(r.report.id,r);added++;}}
+  return {records:next,added,skipped:restored.length-added};
+}
+
+
 async function renderReport(report, counted, signature) {
+  const record=createRecord(report,counted);
   const result=totals(report,counted), W=595.2,H=841.68,scale=3;
   await document.fonts.ready;
   const canvas=document.createElement('canvas');canvas.width=Math.round(W*scale);canvas.height=Math.round(H*scale);
@@ -235,19 +277,44 @@ async function renderReport(report, counted, signature) {
   text(`日報編號：${report.id}`,L,749,5,'left');text('簽名：',407.5,770.5,8,'left');line(447.46,771.36,560.88,771.36);
   const sign=new Image();sign.src=signature;await sign.decode();c.drawImage(sign,447.46,741,113.42,40.8);
   const image=canvas.toDataURL('image/jpeg',.95),doc=await globalThis.PDFLib.PDFDocument.create();const img=await doc.embedJpg(image);const page=doc.addPage([W,H]);page.drawImage(img,{x:0,y:0,width:W,height:H});doc.setTitle(`${report.date} ${report.store} 日報`);doc.setCreator('COMPOSE 門市日報');
+  writePdfData(doc,{type:'compose-pdf-report',version:1,record});
   const bytes=await doc.save();const blob=new Blob([bytes],{type:'application/pdf'});
-  const png=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
-  return {blob,png,preview:canvas.toDataURL('image/png'),totals:result};
+  return {blob,preview:canvas.toDataURL('image/png'),totals:result};
+}
+
+async function renderLedgerBackup(records) {
+  const data=validatePdfData({type:'compose-pdf-backup',version:1,exportedAt:new Date().toISOString(),records});
+  await document.fonts.ready;
+  const sorted=[...data.records].sort((a,b)=>a.report.date.localeCompare(b.report.date)||a.report.store.localeCompare(b.report.store));
+  const doc=await globalThis.PDFLib.PDFDocument.create(),perPage=28,pages=Math.max(1,Math.ceil(sorted.length/perPage));
+  for(let index=0;index<pages;index++) {
+    const canvas=document.createElement('canvas');canvas.width=1190;canvas.height=1684;
+    const c=canvas.getContext('2d');c.scale(2,2);c.fillStyle='#fff';c.fillRect(0,0,595,842);c.fillStyle='#202020';
+    const text=(v,x,y,size=10,align='left')=>{c.font=`${size}px "Microsoft JhengHei", "PingFang TC", sans-serif`;c.textAlign=align;c.fillText(String(v),x,y);};
+    text('COMPOSE 門市收銀紀錄備份',30,40,18);
+    text(`備份時間：${new Date(data.exportedAt).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'})}`,30,63,9);
+    text(`全部 ${sorted.length} 筆紀錄 · 第 ${index+1} / ${pages} 頁`,30,82,9);
+    const columns=[['營業日期',30],['門市',110],['POS 現金',355],['親點金額',445],['收銀損益',550]];
+    columns.forEach(([v,x],i)=>text(v,x,112,10,i>1?'right':'left'));
+    const rows=sorted.slice(index*perPage,(index+1)*perPage);
+    rows.forEach((r,i)=>{const y=138+i*22;text(r.report.date,30,y,9);c.save();c.beginPath();c.rect(110,y-14,155,21);c.clip();text(r.report.store,110,y,9);c.restore();text(format(r.report.cash),355,y,10,'right');text(format(r.counted),445,y,10,'right');text((r.difference>0?'+':'')+format(r.difference),550,y,10,'right');c.strokeStyle='#e4e0d6';c.lineWidth=.5;c.beginPath();c.moveTo(30,y+6);c.lineTo(565,y+6);c.stroke();});
+    if(!rows.length)text('目前尚無已匯入的日報紀錄。',30,145,11);
+    text('此備份可還原統計紀錄；各日簽名日報 PDF 請另外留存。',30,795,9);
+    const img=await doc.embedJpg(canvas.toDataURL('image/jpeg',.9));doc.addPage([595,842]).drawImage(img,{x:0,y:0,width:595,height:842});
+  }
+  doc.setTitle('COMPOSE 收銀紀錄備份');writePdfData(doc,data);
+  const bytes=await doc.save();if(bytes.length>25*1024*1024)throw new Error('備份超過 25 MB，請保留各日原始 PDF 分別匯入。');
+  return new Blob([bytes],{type:'application/pdf'});
 }
 
 const $=id=>document.getElementById(id), sections=['prepare','monthly','count','complete','bad-link'];
-let report=null,prepared=null,output=null,pdfUrl=null,imageUrl=null,strokes=[],drawing=false,dirty=false,importData=null,expenses=[],id=null,receiver=false,completedRecord=null;
+let report=null,prepared=null,output=null,pdfUrl=null,strokes=[],drawing=false,dirty=false,importData=null,expenses=[],id=null,receiver=false;
 const signature=$('signature'),ctx=signature.getContext('2d');
 function show(section){$('home-tabs').hidden=receiver||!['prepare','monthly'].includes(section);$('tab-prepare').setAttribute('aria-pressed',String(section==='prepare'));$('tab-month').setAttribute('aria-pressed',String(section==='monthly'));for(const s of sections)$(s).hidden=s!==section;window.scrollTo({top:0,behavior:'instant'});}
 function error(id,e){$(id).textContent=e?.message||String(e);$(id).hidden=false;}
 function clearError(id){$(id).hidden=true;$(id).textContent='';}
 function dl(target,rows){const element=$(target);element.replaceChildren();for(const [key,value]of rows){const row=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=key;dd.textContent=value;row.append(dt,dd);element.append(row);}}
-function invalidateOutput(){output=null;completedRecord=null;if(pdfUrl)URL.revokeObjectURL(pdfUrl);if(imageUrl)URL.revokeObjectURL(imageUrl);pdfUrl=null;imageUrl=null;}
+function invalidateOutput(){output=null;if(pdfUrl)URL.revokeObjectURL(pdfUrl);pdfUrl=null;}
 function clearSignature(){strokes=[];drawing=false;paint();invalidateOutput();}
 function changedSource(){prepared=null;$('share-panel').hidden=true;$('confirmed').checked=false;id=null;report=null;clearSignature();dirty=true;}
 function paint(){ctx.clearRect(0,0,signature.width,signature.height);ctx.strokeStyle='#202020';ctx.lineWidth=4;ctx.lineCap='round';ctx.lineJoin='round';for(const s of strokes){ctx.beginPath();s.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();}}
@@ -267,16 +334,15 @@ function baseUrl(){const u=new URL(location.href);u.hash='';u.search='';return u
 $('prepare-form').addEventListener('submit',e=>{e.preventDefault();clearError('prepare-error');try{if(!$('confirmed').checked)throw new Error('請先核對資料並勾選確認。');const r=collect();ensureLedger();const m=monthlySummary(ledger,r.store,r.date.slice(0,7),r.id);r.monthSnapshot={month:r.date.slice(0,7),net:m.net,count:m.count,at:new Date().toISOString()};const link=baseUrl()+'#report='+encodeReport(r);if(link.length>8000)throw new Error('連結過長，請縮短備註。');prepared=r;id=r.id;$('share-url').value=link;dl('prepared-values',[['日期',r.date],['門市',r.store],['銷售總金額',format(r.revenue)+' 元'],['POS 現金',format(r.cash)+' 元'],['銷售總杯數',format(r.cups)+' 杯'],['連結攜帶月累計',signed(m.net)+' 元（'+m.count+' 筆）']]);$('share-panel').hidden=false;$('share-status').textContent='尚未發送，請複製或分享連結。';$('share-panel').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){error('prepare-error',e);}});
 async function copyLink(){try{await navigator.clipboard.writeText($('share-url').value);$('share-status').textContent='已複製連結，請貼到指定 LINE 群組。';}catch{$('share-url').focus();$('share-url').select();$('share-status').textContent='請長按連結欄位，選擇全選、複製，再貼到 LINE。';}}
 $('copy-link').addEventListener('click',copyLink);
-$('share-link').addEventListener('click',async()=>{if(!prepared)return;try{if(navigator.share){await navigator.share({title:`${prepared.store} ${prepared.date} 日報`,text:'請點開連結，填入親點現金與零用金支出並簽名，再將 PDF 與紀錄檔一併傳回。',url:$('share-url').value});$('share-status').textContent='已結束分享操作；是否送達請到 LINE 確認。';}else await copyLink();}catch(e){if(e.name!=='AbortError')$('share-status').textContent='無法啟動分享，請使用複製連結。';}});
+$('share-link').addEventListener('click',async()=>{if(!prepared)return;try{if(navigator.share){await navigator.share({title:`${prepared.store} ${prepared.date} 日報`,text:'請點開連結，填入親點現金與零用金支出並簽名，再將日報 PDF 傳回。',url:$('share-url').value});$('share-status').textContent='已結束分享操作；是否送達請到 LINE 確認。';}else await copyLink();}catch(e){if(e.name!=='AbortError')$('share-status').textContent='無法啟動分享，請使用複製連結。';}});
 function receive(r,preview=false){report=validateReport(r);clearSignature();expenses=report.expenses.map(e=>({...e}));drawExpenses();$('counted').value='';clearError('count-error');$('back-prepare').hidden=!preview;$('receiver-meta').textContent=`${r.store} · ${r.date} · 日報 ${r.id.slice(0,8)}`;dl('receiver-values',[['銷售總金額',format(r.revenue)+' 元'],['Linepay',format(r.linepay)+' 元'],['信用卡',format(r.credit)+' 元'],['銷售總杯數',format(r.cups)+' 杯']]);$('pos-cash').textContent=format(r.cash)+' 元';const s=report.monthSnapshot;$('snapshot-month').textContent=report.date.slice(0,7);$('snapshot-base').textContent=s?signed(s.net)+' 元':'未提供';$('snapshot-source').textContent=s?`月累計來源：${new Date(s.at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'})} 產生連結時已匯入 ${s.count} 筆（排除本張）。本次待回傳匯入。`:'舊連結未提供月累計，請向準備人員索取新連結。';updateCalculation();show('count');}
 $('preview-count').addEventListener('click',()=>{if(prepared)receive(prepared,true);});$('back-prepare').addEventListener('click',()=>{show('prepare');$('subtitle').textContent='WE COMPOSE BEST COFFEE';});
 function updateCalculation(){try{if(!report)throw new Error();const t=totals(report,$('counted').value);$('difference').textContent=(t.difference>0?'+':'')+format(t.difference)+' 元';$('received').textContent=format(t.received)+' 元';$('snapshot-current').textContent=signed(t.difference)+' 元';$('snapshot-total').textContent=report.monthSnapshot?signed(report.monthSnapshot.net+t.difference)+' 元':'未提供月累計';}catch{$('difference').textContent='—';$('received').textContent='—';$('snapshot-current').textContent='—';$('snapshot-total').textContent='—';}}
 $('counted').addEventListener('input',()=>{clearSignature();dirty=true;updateCalculation();});
-$('finish').addEventListener('click',async()=>{clearError('count-error');$('finish').disabled=true;try{if(!report)throw new Error('日報資料不存在，請重新開啟完整連結。');report=validateReport({...report,expenses:expenses.map(e=>({...e})),notes:{}});totals(report,$('counted').value);if(!strokes.some(s=>s.length>2&&s.some(p=>Math.hypot(p[0]-s[0][0],p[1]-s[0][1])>8)))throw new Error('請先在簽名區完成簽名。');if(!globalThis.PDFLib)throw new Error('PDF 元件尚未載入，請確認網路後重新開啟頁面。');invalidateOutput();output=await renderReport(report,$('counted').value,signature.toDataURL('image/png'));completedRecord=createRecord(report,$('counted').value);pdfUrl=URL.createObjectURL(output.blob);imageUrl=URL.createObjectURL(output.png);$('report-preview').src=output.preview;$('complete-status').textContent='PDF 與紀錄檔已在此手機產生，請將兩個檔案一併回傳。';show('complete');}catch(e){error('count-error',e);}finally{$('finish').disabled=false;}});
+$('finish').addEventListener('click',async()=>{clearError('count-error');$('finish').disabled=true;try{if(!report)throw new Error('日報資料不存在，請重新開啟完整連結。');report=validateReport({...report,expenses:expenses.map(e=>({...e})),notes:{}});totals(report,$('counted').value);if(!strokes.some(s=>s.length>2&&s.some(p=>Math.hypot(p[0]-s[0][0],p[1]-s[0][1])>8)))throw new Error('請先在簽名區完成簽名。');if(!globalThis.PDFLib)throw new Error('PDF 元件尚未載入，請確認網路後重新開啟頁面。');invalidateOutput();output=await renderReport(report,$('counted').value,signature.toDataURL('image/png'));pdfUrl=URL.createObjectURL(output.blob);$('report-preview').src=output.preview;$('complete-status').textContent='可匯入的日報 PDF 已在此手機產生，請回傳這一份 PDF。';show('complete');}catch(e){error('count-error',e);}finally{$('finish').disabled=false;}});
 function filename(ext){return `${report.date}_${report.store.replace(/[\\/:*?"<>|]/g,'_')}_日報.${ext}`;}
 function download(url,name){const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();}
 $('download-pdf').addEventListener('click',()=>{if(!output)return;download(pdfUrl,filename('pdf'));dirty=false;$('complete-status').textContent='已開啟 PDF 下載，請確認檔案已存到手機，再用 LINE 附檔回傳。';});
-$('download-image').addEventListener('click',()=>{if(!output)return;download(imageUrl,filename('png'));dirty=false;$('complete-status').textContent='已開啟圖片下載，請確認檔案已保存。';});
 $('share-pdf').addEventListener('click',async()=>{if(!output)return;const file=new File([output.blob],filename('pdf'),{type:'application/pdf'});try{if(navigator.canShare?.({files:[file]})&&navigator.share){await navigator.share({files:[file]});dirty=false;$('complete-status').textContent='已結束分享操作；請在 LINE 確認回傳成功。';}else $('complete-status').textContent='此瀏覽器不支援直接分享 PDF。請先下載 PDF，再到 LINE 選擇檔案傳送，或用 Safari／Chrome 開啟。';}catch(e){if(e.name!=='AbortError')$('complete-status').textContent='無法直接分享，請下載 PDF 後至 LINE 附檔傳送。';}});
 $('edit-count').addEventListener('click',()=>{clearSignature();show('count');});
 $('save-draft').addEventListener('click',()=>{try{const r=collect();localStorage.setItem('compose-daily-draft-v1',JSON.stringify(r));dirty=false;$('draft-status').textContent='準備資料已儲存在目前瀏覽器，沒有上傳；簽名不包含在草稿中。';}catch(e){$('draft-status').textContent=e.message||'目前瀏覽器無法保存草稿。';}});
@@ -291,20 +357,19 @@ let ledger=[],ledgerError=null,pendingRecord=null;
 const signed=n=>(n>0?'+':'')+format(n);
 try{const raw=localStorage.getItem(LEDGER_KEY);if(raw){const parsed=JSON.parse(raw);if(!Array.isArray(parsed)||parsed.length>100000)throw new Error('紀錄清單格式不正確');ledger=parsed.map(validateRecord);if(new Set(ledger.map(r=>r.report.id)).size!==ledger.length)throw new Error('紀錄編號重複');}}catch(e){ledgerError=e;}
 function ensureLedger(){if(ledgerError)throw new Error('無法讀取本機月紀錄，未覆寫原資料。請確認瀏覽器允許本機儲存，或先備份原資料再處理。');}
-window.addEventListener('storage',e=>{if(e.key!==LEDGER_KEY&&e.key!==null)return;try{const raw=localStorage.getItem(LEDGER_KEY);const rows=raw?JSON.parse(raw):[];if(!Array.isArray(rows)||rows.length>100000)throw new Error('紀錄清單格式不正確');const next=rows.map(validateRecord);if(new Set(next.map(r=>r.report.id)).size!==next.length)throw new Error('紀錄編號重複');ledger=next;ledgerError=null;pendingRecord=null;$('record-review').hidden=true;renderLedger();$('ledger-status').textContent='其他分頁已更新本機紀錄。';}catch(e){ledgerError=e;$('ledger-status').textContent='其他分頁的月紀錄無法讀取，暫停寫入。';}});
+window.addEventListener('storage',e=>{if(e.key!==LEDGER_KEY&&e.key!==null)return;try{const raw=localStorage.getItem(LEDGER_KEY);const rows=raw?JSON.parse(raw):[];if(!Array.isArray(rows)||rows.length>100000)throw new Error('紀錄清單格式不正確');const next=rows.map(validateRecord);if(new Set(next.map(r=>r.report.id)).size!==next.length)throw new Error('紀錄編號重複');ledger=next;ledgerError=null;pendingRecord=null;clearReviewPdf();$('record-review').hidden=true;renderLedger();$('ledger-status').textContent='其他分頁已更新本機紀錄。';}catch(e){ledgerError=e;$('ledger-status').textContent='其他分頁的月紀錄無法讀取，暫停寫入。';}});
 function persistLedger(next){ensureLedger();const saved=localStorage.getItem(LEDGER_KEY);const current=saved?JSON.parse(saved).map(validateRecord):[];if(JSON.stringify(current)!==JSON.stringify(ledger)){ledger=current;renderLedger();throw new Error('其他分頁已更新月紀錄，請重新核對後再匯入。');}localStorage.setItem(LEDGER_KEY,JSON.stringify(next));ledger=next;}
 function renderLedger(){const s=monthlySummary(ledger,$('ledger-store').value.trim(),$('ledger-month').value);$('ledger-net').textContent=signed(s.net)+' 元';$('ledger-positive').textContent=signed(s.positive)+' 元';$('ledger-negative').textContent=signed(s.negative)+' 元';$('ledger-count').textContent=`本機已匯入 ${s.count} 筆`;$('ledger-empty').hidden=s.count>0;const body=$('ledger-rows');body.replaceChildren();for(const r of [...s.rows].sort((a,b)=>a.report.date.localeCompare(b.report.date)||a.report.id.localeCompare(b.report.id))){const tr=document.createElement('tr');for(const value of [r.report.date.slice(5).replace('-','/'),format(r.counted)+' 元',signed(r.difference)+' 元']){const td=document.createElement('td');td.textContent=value;tr.append(td);}tr.title='日報 '+r.report.id;body.append(tr);}}
 $('tab-prepare').addEventListener('click',()=>show('prepare'));
 $('tab-month').addEventListener('click',()=>{if(!$('ledger-store').value)$('ledger-store').value=$('store').value.trim()||ledger.at(-1)?.report.store||'';renderLedger();if(ledgerError)$('ledger-status').textContent=ledgerError.message+'；無法寫入月紀錄。';show('monthly');});
 for(const key of ['ledger-store','ledger-month'])$(key).addEventListener('input',renderLedger);
-async function readJson(file){if(!file)throw new Error('請先選擇檔案。');if(file.size>25*1024*1024)throw new Error('檔案過大，請確認選擇正確的紀錄檔。');try{return JSON.parse(await file.text());}catch{throw new Error('無法讀取 JSON 紀錄檔。');}}
-$('record-file').addEventListener('change',async()=>{pendingRecord=null;$('record-review').hidden=true;try{ensureLedger();const r=validateRecord(await readJson($('record-file').files[0]));const old=ledger.find(e=>e.report.id===r.report.id);if(old&&JSON.stringify(old)===JSON.stringify(r))throw new Error('這份紀錄已匯入，未重複累加。');if(old&&(old.report.date!==r.report.date||old.report.store!==r.report.store))throw new Error('相同編號的門市或日期不同，請核對紀錄來源。');pendingRecord=r;dl('record-values',[['日期',r.report.date],['門市',r.report.store],['日報編號',r.report.id],['親點金額',format(r.counted)+' 元'],['收銀損益',signed(r.difference)+' 元'],['零用金支出',format(r.report.expenses.reduce((s,e)=>s+e.amount,0))+' 元'],['完成時間',new Date(r.completedAt).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'})]]);$('record-conflict').textContent=old?`同一編號已存在：原親點 ${format(old.counted)} 元、損益 ${signed(old.difference)} 元。確認後取代，不會重複累加。`:'請與回傳的簽名 PDF 核對後匯入。';$('confirm-record').textContent=old?'確認取代這筆紀錄':'確認匯入';$('record-review').hidden=false;$('ledger-status').textContent='請先核對紀錄，再按確認。';}catch(e){$('ledger-status').textContent=e.message;}finally{$('record-file').value='';}});
-$('confirm-record').addEventListener('click',()=>{if(!pendingRecord)return;try{const r=pendingRecord;persistLedger([...ledger.filter(e=>e.report.id!==r.report.id),r]);$('ledger-store').value=r.report.store;$('ledger-month').value=r.report.date.slice(0,7);pendingRecord=null;$('record-review').hidden=true;renderLedger();$('ledger-status').textContent='紀錄已儲存在此瀏覽器，月統計已更新。已產生的舊連結不會同步更新。';}catch(e){$('ledger-status').textContent='未匯入：'+e.message;}});
-function downloadJson(data,name){const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));download(url,name);setTimeout(()=>URL.revokeObjectURL(url),60000);}
-$('export-ledger').addEventListener('click',()=>{try{ensureLedger();downloadJson({type:'compose-daily-backup',version:1,exportedAt:new Date().toISOString(),records:ledger},'COMPOSE_月紀錄備份_'+$('ledger-month').value+'.json');$('ledger-status').textContent=`已開啟全部 ${ledger.length} 筆紀錄的備份下載，請確認存檔。`;}catch(e){$('ledger-status').textContent=e.message;}});
-$('backup-file').addEventListener('change',async()=>{try{ensureLedger();const raw=await readJson($('backup-file').files[0]);if(raw?.type!=='compose-daily-backup'||raw.version!==1||!Array.isArray(raw.records)||raw.records.length>100000)throw new Error('備份格式不正確。');const restored=raw.records.map(validateRecord);if(new Set(restored.map(r=>r.report.id)).size!==restored.length)throw new Error('備份內含重複編號，未匯入。');const next=[...ledger];let added=0;for(const r of restored){const old=next.find(e=>e.report.id===r.report.id);if(old){if(JSON.stringify(old)!==JSON.stringify(r))throw new Error('備份與現有紀錄衝突，未匯入。請以單筆紀錄匯入並核對取代。');}else{next.push(r);added++;}}if(!confirm(`備份共 ${restored.length} 筆，將新增 ${added} 筆、略過 ${restored.length-added} 筆相同紀錄。確認匯入？`))return;persistLedger(next);if(!$('ledger-store').value)$('ledger-store').value=next.at(-1)?.report.store||'';renderLedger();$('ledger-status').textContent=`備份已匯入，新增 ${added} 筆，未重複累加。`;}catch(e){$('ledger-status').textContent=e.message;}finally{$('backup-file').value='';}});
-$('download-record').addEventListener('click',()=>{if(!completedRecord)return;downloadJson(completedRecord,filename('json'));$('complete-status').textContent='已開啟紀錄檔下載，請將 JSON 紀錄與 PDF 一併回傳。';});
-$('share-record').addEventListener('click',async()=>{if(!output||!completedRecord)return;const files=[new File([output.blob],filename('pdf'),{type:'application/pdf'}),new File([JSON.stringify(completedRecord,null,2)],filename('json'),{type:'application/json'})];try{if(navigator.share&&navigator.canShare?.({files})){await navigator.share({files});dirty=false;$('complete-status').textContent='已結束分享操作，請到 LINE 確認 PDF 與紀錄檔都已回傳。';}else $('complete-status').textContent='此瀏覽器無法一起分享兩種檔案，請分別下載 PDF 與紀錄檔，再到 LINE 以檔案方式傳送。';}catch(e){if(e.name!=='AbortError')$('complete-status').textContent='分享未完成，請分別下載 PDF 與紀錄檔後回傳。';}});
+let reviewPdfUrl=null;
+async function readDailyPdf(file,expectedType){if(!file)throw new Error('請先選擇 PDF 檔。');if(file.size>25*1024*1024)throw new Error('檔案過大，請選擇 25 MB 以內的 PDF。');const data=await readPdfData(await file.arrayBuffer());if(data.type!==expectedType)throw new Error(expectedType==='compose-pdf-report'?'這是月紀錄備份，請使用下方「匯入備份 PDF」。':'這是單日日報，請使用上方「匯入門市日報 PDF」。');return data;}
+function clearReviewPdf(){if(reviewPdfUrl)URL.revokeObjectURL(reviewPdfUrl);reviewPdfUrl=null;$('review-pdf').hidden=true;$('review-pdf').removeAttribute('href');}
+$('record-file').addEventListener('change',async()=>{pendingRecord=null;clearReviewPdf();$('record-review').hidden=true;$('record-file').disabled=true;try{ensureLedger();const file=$('record-file').files[0];const r=(await readDailyPdf(file,'compose-pdf-report')).record;const old=ledger.find(e=>e.report.id===r.report.id);if(old&&JSON.stringify(old)===JSON.stringify(r))throw new Error('這份紀錄已匯入，未重複累加。');if(old&&(old.report.date!==r.report.date||old.report.store!==r.report.store))throw new Error('相同編號的門市或日期不同，請核對紀錄來源。');pendingRecord=r;reviewPdfUrl=URL.createObjectURL(file);$('review-pdf').href=reviewPdfUrl;$('review-pdf').hidden=false;dl('record-values',[['日期',r.report.date],['門市',r.report.store],['日報編號',r.report.id],['POS 現金',format(r.report.cash)+' 元'],['親點金額',format(r.counted)+' 元'],['收銀損益',signed(r.difference)+' 元'],['零用金支出',format(r.report.expenses.reduce((s,e)=>s+e.amount,0))+' 元'],['完成時間',new Date(r.completedAt).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'})]]);$('record-conflict').textContent=old?`同一編號已存在：原親點 ${format(old.counted)} 元、損益 ${signed(old.difference)} 元。確認後取代，不會重複累加。`:'請與回傳的簽名 PDF 核對後匯入。';$('confirm-record').textContent=old?'確認取代這筆紀錄':'確認匯入';$('record-review').hidden=false;$('ledger-status').textContent='請先核對紀錄，再按確認。';}catch(e){$('ledger-status').textContent=e.message;}finally{$('record-file').value='';$('record-file').disabled=false;}});
+$('confirm-record').addEventListener('click',()=>{if(!pendingRecord)return;try{const r=pendingRecord;persistLedger([...ledger.filter(e=>e.report.id!==r.report.id),r]);$('ledger-store').value=r.report.store;$('ledger-month').value=r.report.date.slice(0,7);pendingRecord=null;clearReviewPdf();$('record-review').hidden=true;renderLedger();$('ledger-status').textContent='紀錄已儲存在此瀏覽器，月統計已更新。已產生的舊連結不會同步更新。';}catch(e){$('ledger-status').textContent='未匯入：'+e.message;}});
+$('export-ledger').addEventListener('click',async()=>{$('export-ledger').disabled=true;try{ensureLedger();const blob=await renderLedgerBackup(ledger);const url=URL.createObjectURL(blob);download(url,'COMPOSE_收銀紀錄備份_'+$('ledger-month').value+'.pdf');setTimeout(()=>URL.revokeObjectURL(url),60000);$('ledger-status').textContent=`已開啟全部 ${ledger.length} 筆紀錄的備份 PDF 下載，請確認存檔。各日簽名日報請另存。`;}catch(e){$('ledger-status').textContent=e.message;}finally{$('export-ledger').disabled=false;}});
+$('backup-file').addEventListener('change',async()=>{$('backup-file').disabled=true;try{ensureLedger();const raw=await readDailyPdf($('backup-file').files[0],'compose-pdf-backup');const merged=mergeBackup(ledger,raw.records);if(!confirm(`備份共 ${raw.records.length} 筆，將新增 ${merged.added} 筆、略過 ${merged.skipped} 筆相同紀錄。確認匯入？`))return;persistLedger(merged.records);renderLedger();$('ledger-status').textContent=`備份已匯入，新增 ${merged.added} 筆，未重複累加。`;}catch(e){$('ledger-status').textContent=e.message;}finally{$('backup-file').value='';$('backup-file').disabled=false;}});
 
 initialize();window.addEventListener('hashchange',()=>{if(dirty&&!confirm('切換連結會清除尚未下載的內容，確定切換？'))return;dirty=false;clearSignature();initialize();});
 
