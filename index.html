@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-title" content="COMPOSE日報">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=1.0.1">
   <meta name="description" content="COMPOSE 門市日報：本機準備、免登入點算簽名、下載 PDF。">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=' 'sha256-uzZODeSXNXH+NcWaiJ+0tjtssXd7UKZGHI/IKiH36Qo='; style-src 'sha256-6SBsXSJDXKru9K7C3gJJCOAnkip7K67xhBGoSUbTcKg='; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=' 'sha256-H6+JmnhQasG+FWCOsUMMPe/1TmAkJUAlF8o2Pygib9o='; style-src 'sha256-xSFbhsu0tbQCxQ48T0sjSYrMF1qdbUu8mdw5MwYDGqw='; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <!-- Bundled pdf-lib license:
 MIT License
 
@@ -43,6 +43,13 @@ label[for="autopos-bi-date"]{margin-bottom:4px}#autopos-bi-date{margin:0 0 12px}
 .splash{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:var(--yellow);touch-action:none;-webkit-user-select:none;user-select:none;animation:splash-out .45s cubic-bezier(.7,0,.25,1) 1.45s forwards}.splash::after{content:'';position:absolute;left:0;right:0;top:100%;height:3px;background:var(--ink)}.splash.splash-skip{animation:splash-skip .3s cubic-bezier(.7,0,.25,1) forwards}.splash-logo{position:relative;width:min(46vw,42vh,190px);aspect-ratio:1;animation:splash-pop .5s cubic-bezier(.2,.9,.3,1.25) both}.splash-logo img{position:absolute;inset:0;display:block;width:100%;height:100%}.splash-needle{transform-origin:50.1% 49.8%;animation:splash-needle 1.05s cubic-bezier(.35,0,.3,1) .12s both}.splash-tag{margin:0;font-size:13px;font-weight:600;letter-spacing:3px;animation:splash-tag .4s ease-out .7s both}
 @keyframes splash-pop{from{opacity:0;transform:scale(.82)}}@keyframes splash-needle{0%{transform:rotate(-270deg)}55%{transform:rotate(16deg)}75%{transform:rotate(-7deg)}90%{transform:rotate(3deg)}100%{transform:rotate(0)}}@keyframes splash-tag{from{opacity:0;transform:translateY(8px)}}@keyframes splash-out{to{transform:translateY(-100%);visibility:hidden}}@keyframes splash-skip{to{transform:translateY(-100%);visibility:hidden}}@keyframes splash-fade{to{opacity:0;visibility:hidden}}
 @media(prefers-reduced-motion:reduce){.splash{animation:splash-fade .3s linear 1s forwards}.splash.splash-skip{animation:splash-fade .15s linear forwards}.splash-logo,.splash-needle,.splash-tag{animation:none}}
+
+#prepare:not([hidden]) ~ #count:not([hidden]) {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 2px solid var(--yellow);
+  scroll-margin-top: 16px;
+}
 </style><link rel="icon" href="apple-touch-icon.png?v=1.0.1" type="image/png">
   
 </head>
@@ -109,7 +116,8 @@ label[for="autopos-bi-date"]{margin-bottom:4px}#autopos-bi-date{margin:0 0 12px}
         <p class="help">零用金支出由門市人員在親點畫面填寫。</p>
         <label class="check spaced"><input id="confirmed" type="checkbox"><span>我已核對日期、門市及全部營業數字。</span></label>
         <p id="prepare-error" role="alert" class="error" hidden></p>
-        <button class="primary full" type="submit">確認並產生點算連結</button>
+        <button class="primary full" type="button" id="count-on-phone">在這支手機點算</button>
+        <button class="full" type="submit">確認並產生點算連結</button>
       </form>
       <div class="actions"><button type="button" id="save-draft">儲存本機草稿</button><button type="button" id="restore-draft">讀取本機草稿</button></div><p id="draft-status" class="help" role="status"></p>
       <section id="share-panel" class="share-panel" hidden><div class="heading"><h2>日報已準備好</h2><span class="tag">待親點</span></div><dl id="prepared-values"></dl><label>親點專屬連結<textarea id="share-url" rows="3" readonly aria-label="親點專屬連結"></textarea></label><p class="help">連結已壓縮，從 LINE 點開會要求使用 Safari／預設瀏覽器。連結含這張日報資料，取得連結即可查看。請傳給指定人員；帳密與簽名不放在連結中。</p><div class="actions"><button type="button" id="copy-link">複製連結</button><button type="button" id="share-link" class="primary">分享到 LINE</button></div><button type="button" id="preview-count" class="full">預覽親點人員畫面</button><p id="share-status" role="status"></p></section>
@@ -132,7 +140,7 @@ label[for="autopos-bi-date"]{margin-bottom:4px}#autopos-bi-date{margin:0 0 12px}
       <div class="heading spaced"><h2>簽名</h2><button type="button" id="clear-sign" class="quiet">清除重簽</button></div><button type="button" id="open-signature" class="signature-trigger" aria-haspopup="dialog"><span id="signature-placeholder">點此開啟全螢幕簽名</span><canvas id="signature" width="1000" height="360" aria-label="已確認的橫向簽名" hidden></canvas></button><p class="help center">直拿或橫拿均可，完成後確認 PDF 橫向簽名預覽。</p>
       <p id="count-error" role="alert" class="error" hidden></p><button type="button" id="finish" class="primary full">確認金額與簽名，產生日報 PDF</button><button type="button" id="back-prepare" class="full" hidden>返回準備資料</button>
     </section>
-    <section id="complete" hidden><div class="heading"><h2>日報 PDF 已產生</h2><span class="tag">待回傳</span></div><p class="help">這份 PDF 包含簽名日報與可匯入的金額紀錄。請將原始 PDF 回傳老闆，老闆核對匯入後即可更新月統計。</p><img id="report-preview" alt="已填寫金額與簽名的日報預覽"><div class="actions"><button id="download-pdf" type="button">下載日報 PDF</button><button id="share-pdf" type="button" class="primary">分享日報 PDF 到 LINE</button></div><button type="button" id="edit-count" class="full">返回修改金額／簽名</button><p id="complete-status" role="status"></p><p class="help">金額修改後須重新簽名、產生新的 PDF。</p></section>
+    <section id="complete" hidden><div class="heading"><h2>日報 PDF 已產生</h2><span class="tag" id="complete-tag">待回傳</span></div><p class="help" id="complete-help">這份 PDF 包含簽名日報與可匯入的金額紀錄。請將原始 PDF 回傳老闆，老闆核對匯入後即可更新月統計。</p><img id="report-preview" alt="已填寫金額與簽名的日報預覽"><div class="actions"><button id="download-pdf" type="button">下載日報 PDF</button><button id="share-pdf" type="button" class="primary">分享日報 PDF 到 LINE</button></div><button type="button" id="edit-count" class="full">返回修改金額／簽名</button><p id="complete-status" role="status"></p><p class="help">金額修改後須重新簽名、產生新的 PDF。</p></section>
     <section id="bad-link" hidden><h2>無法開啟這張日報</h2><p id="bad-link-message" class="error"></p><p>請準備人員重新複製完整連結。</p></section>
     <details class="usage"><summary>使用方式與資料保存</summary><p>準備人員：填寫或貼上 AutoPOS 表格 → 核對 → 分享日報連結。</p><p>親點人員：點連結 → 填親點金額與零用金支出 → 確認本月損益 → 簽名 → 回傳日報 PDF。</p><p>本站沒有日報伺服器與登入帳號。本機草稿與匯入的月統計保存在目前瀏覽器；簽名與完成 PDF 不會自動保存。月累計是產生連結時的已匯入紀錄，不會即時同步。請保留原始 PDF 檔案；截圖、另存圖片、列印成 PDF 不含可匯入紀錄。連結不會到期或提供遠端撤銷；以日報編號、日期與原始數字核對回傳 PDF。</p><p>在 LINE 內開啟若無法下載或分享，請改用 Safari／Chrome 開啟同一連結。</p></details>
   </main><footer>COMPOSE 日報 · 資料在手機處理 · v1.5.0</footer>
@@ -1034,18 +1042,48 @@ function createAutoPosBiShortcut(targetUrl) {
 }
 
 const $=id=>document.getElementById(id), sections=['prepare','monthly','count','complete','bad-link','loading'];
+const storePilotRole = document.body.dataset.storePilot;
 {const splash=$('splash');if(splash){if(getComputedStyle(splash).visibility==='hidden')splash.remove();else{let leaving=false;splash.addEventListener('animationstart',e=>{if(e.target===splash)leaving=true;});splash.addEventListener('animationend',e=>{if(e.target===splash)splash.remove();});const skip=()=>{if(!leaving)splash.classList.add('splash-skip');};splash.addEventListener('pointerdown',skip);if(location.hash.startsWith('#autopos'))skip();}}}
 let report=null,prepared=null,output=null,pdfUrl=null,dirty=false,importData=null,expenses=[],id=null,receiver=false,sourceRevision=0,initializationRevision=0;
 let pendingAutoPos=null;
+let localCounting = false, localDraft = null;
 const signaturePad=new SignaturePad({onChange:()=>{invalidateOutput();dirty=true;},onDirty:()=>dirty=true});
-function show(section){$('home-tabs').hidden=receiver||!['prepare','monthly'].includes(section);$('tab-prepare').setAttribute('aria-pressed',String(section==='prepare'));$('tab-month').setAttribute('aria-pressed',String(section==='monthly'));for(const s of sections)$(s).hidden=s!==section;window.scrollTo({top:0,behavior:'instant'});}
+function show(section) {
+  const samePage = localCounting && (section === 'prepare' || section === 'count');
+  const localCompletion = localCounting && section === 'complete';
+  $('home-tabs').hidden = receiver || !(samePage || localCompletion || ['prepare','monthly'].includes(section));
+  $('tab-prepare').setAttribute('aria-pressed', String(section === 'prepare' || samePage || localCompletion));
+  $('tab-month').setAttribute('aria-pressed', String(section === 'monthly'));
+  for (const name of sections) {
+    $(name).hidden = name !== section && !(samePage && ['prepare','count'].includes(name));
+  }
+  window.scrollTo({top:0,behavior:'instant'});
+}
 function error(id,e){$(id).textContent=e?.message||String(e);$(id).hidden=false;}
 function clearError(id){$(id).hidden=true;$(id).textContent='';}
 function setProfit(el,value){for(const tone of ['positive','negative','neutral'])el.classList.toggle('profit-'+tone,tone===profitTone(value));}
 function dl(target,rows){const element=$(target);element.replaceChildren();for(const [key,value,profit]of rows){const row=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=key;dd.textContent=value;if(typeof profit==='number')setProfit(dd,profit);row.append(dt,dd);element.append(row);}}
 function invalidateOutput(){output=null;if(pdfUrl)URL.revokeObjectURL(pdfUrl);pdfUrl=null;}
 function clearSignature(){signaturePad.clear();invalidateOutput();}
-function changedSource(){sourceRevision++;prepared=null;$('share-panel').hidden=true;$('confirmed').checked=false;id=null;report=null;clearSignature();dirty=true;}
+function changedSource() {
+  sourceRevision++;
+  prepared = null;
+  $('share-panel').hidden = true;
+  $('confirmed').checked = false;
+  id = null;
+  if (localCounting && report) {
+    localDraft = {
+      date:report.date, store:report.store, counted:$('counted').value,
+      expenses:expenses.map(expense => ({...expense})),
+      notes:Object.fromEntries(noteFields.map(key => [key, $('count-'+key).value])),
+    };
+    localCounting = false;
+    $('count').hidden = true;
+  }
+  report = null;
+  clearSignature();
+  dirty = true;
+}
 $('clear-sign').addEventListener('click',clearSignature);
 function checkPayments(){try{const sum=['cash','linepay','credit'].reduce((s,k)=>s+amount($(k).value,k),0),revenue=amount($('revenue').value,'營業收入');$('payment-check').textContent=`收款合計 ${format(sum)} 元${sum===revenue?'，與營業收入一致。':'，與營業收入不一致，請核對。'}`;}catch{$('payment-check').textContent='三種收款合計須與營業收入一致；沒有金額請填 0。';}}
 function updateExpenseTotals(){const valid=expenses.reduce((s,e)=>{try{return s+amount(e.amount,'支出金額',true);}catch{return s;}},0);$('expense-count').textContent=`${expenses.length} / 9 筆`;$('expense-total').textContent=format(valid)+' 元';$('add-expense').disabled=expenses.length>=9;updateCalculation();}
@@ -1054,19 +1092,52 @@ $('add-expense').addEventListener('click',()=>{if(expenses.length<9){expenses.pu
 const fields=['date','store','revenue','cash','linepay','credit','cups','deliveryCups','deliveryAmount'];
 for(const f of fields)$(f).addEventListener('input',()=>{changedSource();checkPayments();});
 function collect(){const raw={v:1,id:id||crypto.randomUUID(),expenses:[],notes:{}};for(const f of fields)raw[f]=$(f).value;return validateReport(raw);}
+function confirmedDraft() {
+  if (!$('confirmed').checked) throw new Error('請先核對資料並勾選確認。');
+  const draft = collect();
+  ensureLedger();
+  const month = draft.date.slice(0, 7);
+  const summary = monthlySummary(ledger, draft.store, month, draft.id, draft.date);
+  draft.monthSnapshot = {month, net:summary.net, count:summary.count, at:new Date().toISOString(), excludeDate:draft.date};
+  return draft;
+}
 function restoreForm(r){for(const f of fields)$(f).value=r[f]??'';id=null;changedSource();checkPayments();}
 const noteFields=['over','short','other'];
 for(const key of noteFields)$('count-'+key).addEventListener('input',()=>{clearSignature();dirty=true;});
 function baseUrl(){const u=new URL(location.href);u.hash='';u.search='';return u.href;}
-$('prepare-form').addEventListener('submit',async e=>{e.preventDefault();clearError('prepare-error');const revision=sourceRevision,submit=e.submitter;if(submit)submit.disabled=true;try{if(!$('confirmed').checked)throw new Error('請先核對資料並勾選確認。');const r=collect();ensureLedger();const m=monthlySummary(ledger,r.store,r.date.slice(0,7),r.id,r.date);r.monthSnapshot={month:r.date.slice(0,7),net:m.net,count:m.count,at:new Date().toISOString(),excludeDate:r.date};const link=buildReportUrl(baseUrl(),await encodeCompactReport(r));if(revision!==sourceRevision)throw new Error('產生連結時資料已變更，請重新核對並送出。');if(link.length>8000)throw new Error('連結過長，請縮短備註。');prepared=r;id=r.id;$('share-url').value=link;dl('prepared-values',[['日期',r.date],['門市',r.store],['銷售總金額',format(r.revenue)+' 元'],['POS 現金',format(r.cash)+' 元'],['銷售總杯數',format(r.cups)+' 杯'],['連結攜帶月累計',signed(m.net)+' 元（'+m.count+' 筆）',m.net]]);$('share-panel').hidden=false;$('share-status').textContent='尚未發送，請複製或分享連結。';$('share-panel').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){error('prepare-error',e);}finally{if(submit)submit.disabled=false;}});
+$('prepare-form').addEventListener('submit',async e=>{e.preventDefault();clearError('prepare-error');const revision=sourceRevision,submit=e.submitter;if(submit)submit.disabled=true;try{const r=confirmedDraft(),m=r.monthSnapshot;const link=buildReportUrl(baseUrl(),await encodeCompactReport(r));if(revision!==sourceRevision)throw new Error('產生連結時資料已變更，請重新核對並送出。');if(link.length>8000)throw new Error('連結過長，請縮短備註。');prepared=r;id=r.id;$('share-url').value=link;dl('prepared-values',[['日期',r.date],['門市',r.store],['銷售總金額',format(r.revenue)+' 元'],['POS 現金',format(r.cash)+' 元'],['銷售總杯數',format(r.cups)+' 杯'],['連結攜帶月累計',signed(m.net)+' 元（'+m.count+' 筆）',m.net]]);$('share-panel').hidden=false;$('share-status').textContent='尚未發送，請複製或分享連結。';$('share-panel').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){error('prepare-error',e);}finally{if(submit)submit.disabled=false;}});
 async function copyLink(){try{await navigator.clipboard.writeText($('share-url').value);$('share-status').textContent='已複製連結，請貼到指定 LINE 群組。';}catch{$('share-url').focus();$('share-url').select();$('share-status').textContent='請長按連結欄位，選擇全選、複製，再貼到 LINE。';}}
 $('copy-link').addEventListener('click',copyLink);
 $('share-link').addEventListener('click',async()=>{if(!prepared)return;try{if(navigator.share){await navigator.share({title:`${prepared.store} ${prepared.date} 日報`,text:'請點開連結，填入親點現金與零用金支出並簽名，連結會以外部瀏覽器開啟，完成後將日報 PDF 傳回。',url:$('share-url').value});$('share-status').textContent='已結束分享操作；是否送達請到 LINE 確認。';}else await copyLink();}catch(e){if(e.name!=='AbortError')$('share-status').textContent='無法啟動分享，請使用複製連結。';}});
-function receive(r,preview=false){report=validateReport(r);clearSignature();expenses=report.expenses.map(e=>({...e}));drawExpenses();for(const key of noteFields)$('count-'+key).value=report.notes[key];$('counted').value='';clearError('count-error');$('back-prepare').hidden=!preview;$('receiver-meta').textContent=`${r.store} · ${r.date} · 日報 ${r.id.slice(0,8)}`;dl('receiver-values',[['銷售總金額',format(r.revenue)+' 元'],['Linepay',format(r.linepay)+' 元'],['信用卡',format(r.credit)+' 元'],['銷售總杯數',format(r.cups)+' 杯']]);$('pos-cash').textContent=format(r.cash)+' 元';const s=report.monthSnapshot;$('snapshot-month').textContent=report.date.slice(0,7);$('snapshot-base').textContent=s?signed(s.net)+' 元':'未提供';setProfit($('snapshot-base'),s?.net);$('snapshot-source').textContent=s?`月累計來源：${new Date(s.at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'})} 產生連結時已匯入 ${s.count} 筆（${s.excludeDate?'不含當日日報':'排除本張'}）。本次待回傳匯入。`:'舊連結未提供月累計，請向準備人員索取新連結。';const external=new URL(preview?$('share-url').value:location.href);external.searchParams.set('openExternalBrowser','1');$('external-browser').href=external.href;$('line-browser-help').hidden=!/Line\//i.test(navigator.userAgent);updateCalculation();show('count');}
+function receive(r,mode='shared'){localCounting=mode==='local';report=validateReport(r);clearSignature();expenses=report.expenses.map(e=>({...e}));drawExpenses();for(const key of noteFields)$('count-'+key).value=report.notes[key];$('counted').value='';clearError('count-error');$('back-prepare').hidden=mode!==true;$('receiver-meta').textContent=`${r.store} · ${r.date} · 日報 ${r.id.slice(0,8)}`;dl('receiver-values',[['銷售總金額',format(r.revenue)+' 元'],['Linepay',format(r.linepay)+' 元'],['信用卡',format(r.credit)+' 元'],['銷售總杯數',format(r.cups)+' 杯']]);$('pos-cash').textContent=format(r.cash)+' 元';const s=report.monthSnapshot;$('snapshot-month').textContent=report.date.slice(0,7);$('snapshot-base').textContent=s?signed(s.net)+' 元':'未提供';setProfit($('snapshot-base'),s?.net);$('snapshot-source').textContent=s?`月累計來源：${new Date(s.at).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'})} ${localCounting?'確認營業數字時':'產生連結時'}已匯入 ${s.count} 筆（${s.excludeDate?'不含當日日報':'排除本張'}）。本次待匯入。`:'舊連結未提供月累計，請向準備人員索取新連結。';const external=new URL(mode===true?$('share-url').value:location.href);external.searchParams.set('openExternalBrowser','1');$('external-browser').href=external.href;$('line-browser-help').hidden=localCounting||!/Line\//i.test(navigator.userAgent);updateCalculation();show('count');}
+if (storePilotRole) $('count-on-phone').hidden = true;
+$('count-on-phone').addEventListener('click', () => {
+  clearError('prepare-error');
+  if (localCounting && report) {
+    $('count').scrollIntoView({block:'start'});
+    return;
+  }
+  try {
+    const draft = confirmedDraft();
+    id = draft.id;
+    receive(draft, 'local');
+    if (localDraft?.date === draft.date && localDraft.store === draft.store) {
+      $('counted').value = localDraft.counted;
+      expenses = localDraft.expenses;
+      for (const key of noteFields) $('count-'+key).value = localDraft.notes[key];
+      drawExpenses();
+    }
+    localDraft = null;
+    dirty = true;
+    $('count').scrollIntoView({block:'start'});
+  } catch (errorValue) {
+    error('prepare-error', errorValue);
+  }
+});
 $('preview-count').addEventListener('click',()=>{if(prepared)receive(prepared,true);});$('back-prepare').addEventListener('click',()=>{show('prepare');$('subtitle').textContent='WE COMPOSE BEST COFFEE';});
 function updateCalculation(){try{if(!report)throw new Error();const t=totals({...report,expenses},$('counted').value);$('difference').textContent=(t.difference>0?'+':'')+format(t.difference)+' 元';$('received').textContent=format(t.received)+' 元';$('snapshot-current').textContent=signed(t.difference)+' 元';$('snapshot-total').textContent=report.monthSnapshot?signed(report.monthSnapshot.net+t.difference)+' 元':'未提供月累計';setProfit($('difference'),t.difference);setProfit($('snapshot-current'),t.difference);setProfit($('snapshot-total'),report.monthSnapshot?report.monthSnapshot.net+t.difference:null);}catch{$('difference').textContent='—';$('received').textContent='—';$('snapshot-current').textContent='—';$('snapshot-total').textContent='—';for(const key of ['difference','snapshot-current','snapshot-total'])setProfit($(key),null);}}
 $('counted').addEventListener('input',()=>{clearSignature();dirty=true;updateCalculation();});
-$('finish').addEventListener('click',async()=>{clearError('count-error');$('finish').disabled=true;try{if(!report)throw new Error('日報資料不存在，請重新開啟完整連結。');report=validateReport({...report,expenses:expenses.map(e=>({...e})),notes:Object.fromEntries(noteFields.map(key=>[key,$('count-'+key).value]))});totals(report,$('counted').value);if(!signaturePad.dataUrl)throw new Error('請點簽名框完成簽名，並確認橫向預覽。');if(!globalThis.PDFLib)throw new Error('PDF 元件尚未載入，請確認網路後重新開啟頁面。');invalidateOutput();output=await renderReport(report,$('counted').value,signaturePad.dataUrl);pdfUrl=URL.createObjectURL(output.blob);$('report-preview').src=output.preview;$('complete-status').textContent='可匯入的日報 PDF 已在此手機產生，請回傳這一份 PDF。';show('complete');}catch(e){error('count-error',e);}finally{$('finish').disabled=false;}});
+$('finish').addEventListener('click',async()=>{clearError('count-error');$('finish').disabled=true;try{if(!report)throw new Error('日報資料不存在，請重新開啟完整連結。');report=validateReport({...report,expenses:expenses.map(e=>({...e})),notes:Object.fromEntries(noteFields.map(key=>[key,$('count-'+key).value]))});totals(report,$('counted').value);if(!signaturePad.dataUrl)throw new Error('請點簽名框完成簽名，並確認橫向預覽。');if(!globalThis.PDFLib)throw new Error('PDF 元件尚未載入，請確認網路後重新開啟頁面。');invalidateOutput();const finalReport=report,signedImage=signaturePad.dataUrl;const rendered=await renderReport(finalReport,$('counted').value,signedImage);if(report!==finalReport||signaturePad.dataUrl!==signedImage)return;output=rendered;pdfUrl=URL.createObjectURL(output.blob);$('report-preview').src=output.preview;$('complete-tag').textContent=localCounting?'待存檔':'待回傳';$('complete-help').textContent=localCounting?'下載原始 PDF 後，可到「當月收銀損益」核對匯入。':'這份 PDF 包含簽名日報與可匯入的金額紀錄。請將原始 PDF 回傳老闆，老闆核對匯入後即可更新月統計。';$('complete-status').textContent=localCounting?'可匯入的日報 PDF 已在此手機產生。':'可匯入的日報 PDF 已在此手機產生，請回傳這一份 PDF。';show('complete');}catch(e){error('count-error',e);}finally{$('finish').disabled=false;}});
 function filename(ext){return `${report.date}篤敬日報.${ext}`;}
 function download(url,name){const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();}
 $('download-pdf').addEventListener('click',()=>{if(!output)return;download(pdfUrl,filename('pdf'));dirty=false;$('complete-status').textContent='已開啟 PDF 下載，請確認檔案已存到手機，再用 LINE 附檔回傳。';});
@@ -1100,7 +1171,7 @@ function renderAutoPosReview(packet){
   $('autopos-review').hidden=false;
   $('autopos-review').scrollIntoView({block:'start'});
 }
-async function initialize(){const token=++initializationRevision;receiver=false;drawExpenses();const hash=location.hash;pendingAutoPos=null;$('autopos-review').hidden=true;clearError('autopos-error');if(hash.startsWith('#autopos=')||hash.startsWith('#autopos-error=')){show('prepare');if(!$('date').value){const t=new Date(Date.now()+8*3600000).toISOString().slice(0,10);$('date').value=t;$('ledger-month').value=t.slice(0,7);}try{if(hash.startsWith('#autopos-error='))throw new Error(decodeURIComponent(hash.slice(15)).slice(0,300));pendingAutoPos=decodeAutoPosPacket(hash.slice(9));renderAutoPosReview(pendingAutoPos);}catch(e){pendingAutoPos=null;error('autopos-error',e);}return;}if(hash){receiver=true;try{if(!hash.startsWith('#report='))throw new Error('日報連結格式不正確。');show('loading');const decoded=await decodeSharedReport(hash.slice(8));if(token!==initializationRevision)return;receive(decoded);}catch(e){if(token!==initializationRevision)return;$('bad-link-message').textContent=e.message;show('bad-link');}}else{const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());$('date').value=['year','month','day'].map(t=>parts.find(p=>p.type===t).value).join('-');$('ledger-month').value=$('date').value.slice(0,7);show('prepare');}}
+async function initialize(){const token=++initializationRevision;receiver=false;localCounting=false;localDraft=null;drawExpenses();const hash=location.hash;pendingAutoPos=null;$('autopos-review').hidden=true;clearError('autopos-error');if(hash.startsWith('#autopos=')||hash.startsWith('#autopos-error=')){show('prepare');if(!$('date').value){const t=new Date(Date.now()+8*3600000).toISOString().slice(0,10);$('date').value=t;$('ledger-month').value=t.slice(0,7);}try{if(hash.startsWith('#autopos-error='))throw new Error(decodeURIComponent(hash.slice(15)).slice(0,300));pendingAutoPos=decodeAutoPosPacket(hash.slice(9));renderAutoPosReview(pendingAutoPos);}catch(e){pendingAutoPos=null;error('autopos-error',e);}return;}if(hash){receiver=true;try{if(!hash.startsWith('#report='))throw new Error('日報連結格式不正確。');show('loading');const decoded=await decodeSharedReport(hash.slice(8));if(token!==initializationRevision)return;receive(decoded);}catch(e){if(token!==initializationRevision)return;$('bad-link-message').textContent=e.message;show('bad-link');}}else{const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());$('date').value=['year','month','day'].map(t=>parts.find(p=>p.type===t).value).join('-');$('ledger-month').value=$('date').value.slice(0,7);show('prepare');}}
 
 const autoPosReturnUrl='https://wuxia1005.github.io/compose-daily/';
 function setupAutoPosCopy(prefix, script){
@@ -1162,7 +1233,34 @@ $('cancel-record').addEventListener('click',()=>{pendingRecord=null;clearReviewP
 $('export-ledger').addEventListener('click',async()=>{$('export-ledger').disabled=true;try{ensureLedger();const blob=await renderLedgerBackup(ledger);const url=URL.createObjectURL(blob);download(url,'COMPOSE_收銀紀錄備份_'+$('ledger-month').value+'.pdf');setTimeout(()=>URL.revokeObjectURL(url),60000);$('ledger-status').textContent=`已開啟全部 ${ledger.length} 筆紀錄的備份 PDF 下載，請確認存檔。各日簽名日報請另存。`;}catch(e){$('ledger-status').textContent=e.message;}finally{$('export-ledger').disabled=false;}});
 $('backup-file').addEventListener('change',async()=>{$('backup-file').disabled=true;try{ensureLedger();const raw=await readDailyPdf($('backup-file').files[0],'compose-pdf-backup');const merged=mergeBackup(ledger,raw.records);if(!confirm(`備份共 ${raw.records.length} 筆，將新增 ${merged.added} 筆、略過 ${merged.skipped} 筆相同紀錄。確認匯入？`))return;persistLedger(merged.records);renderLedger();$('ledger-status').textContent=`備份已匯入，新增 ${merged.added} 筆，未重複累加。`;}catch(e){$('ledger-status').textContent=e.message;}finally{$('backup-file').value='';$('backup-file').disabled=false;}});
 
-initialize();window.addEventListener('hashchange',()=>{if(dirty&&!confirm('切換連結會清除尚未下載的內容，確定切換？'))return;dirty=false;clearSignature();initialize();});
+function confirmedStoreDraft() {
+  if (storePilotRole !== 'manager') throw new Error('只有管理者可以發布營業資料。');
+  return confirmedDraft();
+}
+
+function showStoreReport(next) {
+  if (storePilotRole !== 'staff') return;
+  receiver = true;
+  dirty = false;
+  if (next) {
+    receive(next);
+    $('snapshot-source').textContent = '累計以管理者發布時已匯入的紀錄為準，排除當天舊紀錄，再加上本次損益。';
+    return;
+  }
+  report = null;
+  clearSignature();
+  $('home-tabs').hidden = true;
+  for (const section of sections) $(section).hidden = true;
+}
+
+function hasPendingStoreWork() {
+  return storePilotRole === 'staff' && dirty;
+}
+
+if (storePilotRole !== 'staff') {
+  initialize();
+  window.addEventListener('hashchange',()=>{if(dirty&&!confirm('切換連結會清除尚未下載的內容，確定切換？'))return;dirty=false;clearSignature();initialize();});
+}
 
 
 })();</script></body></html>
