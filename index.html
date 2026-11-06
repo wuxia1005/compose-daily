@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-title" content="COMPOSE日報">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=1.0.1">
   <meta name="description" content="COMPOSE 門市日報：本機準備、免登入點算簽名、下載 PDF。">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=' 'sha256-YMrr3r32gMOlcdQcVkfR515qGFXyNoNHTODWnMcdPgo='; style-src 'sha256-ocemRDWZ6brxrGy8CzdWqJ0hhl3XMzWZGlSJLhLlL9k='; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=' 'sha256-wEoJZ3+ugSNGxdbuGzqoBpzK8mAXJrLQQe/Ui3dsnxk='; style-src 'sha256-ocemRDWZ6brxrGy8CzdWqJ0hhl3XMzWZGlSJLhLlL9k='; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <!-- Bundled pdf-lib license:
 MIT License
 
@@ -55,7 +55,21 @@ SOFTWARE.
       <div class="heading"><h2>準備當日日報</h2><span class="tag">準備人員</span></div>
       <p class="help">資料只在此裝置處理。確認後產生連結，親點人員免登入填金額、簽名。</p>
       <section class="autopos-box" aria-labelledby="autopos-heading">
-        <div class="heading"><h2 id="autopos-heading">AutoPOS 一鍵帶入</h2><span class="tag">iPhone 測試版</span></div>
+        <div class="heading"><h2 id="autopos-heading">AutoPOS 行動 BI 帶入</h2><span class="tag">iPhone 測試版</span></div>
+        <p>在 Safari 的行動 BI 首頁選「高雄篤敬店」、「全部」通路與「今日」或「昨日」，再從分享選單執行「COMPOSE 帶入日報」。</p>
+        <a class="autopos-open" href="https://autopos.cloud/h5be/brandPage" target="_blank" rel="noopener noreferrer">開啟 AutoPOS 行動 BI</a>
+        <details id="autopos-bi-setup"><summary>更新 iPhone 捷徑</summary>
+          <ol>
+            <li>點下方「複製行動 BI 捷徑程式」。</li>
+            <li>打開「捷徑」App 編輯「COMPOSE 帶入日報」，在「於捷徑輸入上執行 JavaScript」的程式欄全選，貼上新程式。下方「打開 URL」沿用「JavaScript 結果」。</li>
+            <li>在 Safari 登入 AutoPOS 時，版本選「行動BI」。回到顯示「(10001) 高雄篤敬店」的首頁，再從 Safari 的分享選單執行捷徑。</li>
+          </ol>
+          <p class="help">如果是第一次建立捷徑，在詳細資訊開啟「在分享表單中顯示」，接收類型選「Safari 網頁」，再依上方說明加入 JavaScript 與打開 URL 兩個動作。</p>
+          <button type="button" id="autopos-bi-copy-script" class="full">複製行動 BI 捷徑程式</button>
+          <label>捷徑程式（可長按全選複製）<textarea id="autopos-bi-script" rows="3" readonly spellcheck="false"></textarea></label>
+          <p id="autopos-bi-setup-status" class="help" role="status"></p>
+        </details>
+        <details id="autopos-backend"><summary>備用：商家後台帶入</summary>
         <p>按下後會開啟 AutoPOS，讀取下方「營業日期」那一天的兩份報表，再自動回到這裡核對。</p>
         <a id="autopos-go" class="autopos-open" href="https://autopos.cloud/">一鍵帶入 AutoPOS</a>
         <p class="help">請用 Safari，並先完成下方的首次設定。營業日期未填時讀取今天。會先開啟 AutoPOS 登入頁：登入仍有效時不用操作，幾秒後自動回來；已過期時請登入（版本選「商戶後台」），登入後自動繼續。畫面下方若沒有出現「COMPOSE 日報」提示，代表延伸功能尚未啟用。手機實機串接尚待驗收。</p>
@@ -72,9 +86,10 @@ SOFTWARE.
           <p id="autopos-setup-status" class="help" role="status"></p>
           <p class="help">只在你操作時查詢高雄篤敬店，不保存帳密、不自動發送 LINE。依 iPhone 提示允許捷徑在 AutoPOS 執行。請固定用保存月紀錄的 Safari；主畫面與其他瀏覽器不一定共用紀錄。Android 暫無此捷徑流程。</p>
         </details>
+        </details>
         <p id="autopos-error" class="error" role="alert" hidden></p>
         <section id="autopos-review" hidden aria-label="AutoPOS 帶入核對">
-          <h2>核對 AutoPOS 資料</h2><dl id="autopos-values"></dl>
+          <h2 id="autopos-review-heading">核對 AutoPOS 資料</h2><dl id="autopos-values"></dl>
           <p id="autopos-time" class="help"></p><p id="autopos-warning" class="help"></p>
           <p class="help">尚未變更日報。營業中的數字會變動，請於結帳後重新查詢。確認帶入將替換營業欄位，並清空原有外送欄位，請另行補填。</p>
           <button type="button" id="autopos-apply" class="primary full">確認帶入日報</button><button type="button" id="autopos-cancel" class="full">取消這次帶入</button>
@@ -465,7 +480,9 @@ function validateAutoPosPacket(raw) {
   const times=[summary.queriedAt,receipt.queriedAt].map(Date.parse);
   if(Math.abs(times[0]-times[1])>120000)throw new Error('兩份報表查詢時間相差超過 2 分鐘，請重新查詢。');
   if(times.some(t=>t>Date.parse(capturedAt)+300000 || Date.parse(capturedAt)-t>300000))throw new Error('報表不是本次的新查詢結果，請確認手機時間並重新查詢。');
-  return {v:1,source:'autopos',date:raw.date,summary,receipt,capturedAt};
+  const packet={v:1,source:'autopos',date:raw.date,summary,receipt,capturedAt};
+  if(raw.method==='mobile-bi')packet.method='mobile-bi';
+  return packet;
 }
 function encodeAutoPosPacket(raw) {
   const bytes=new TextEncoder().encode(JSON.stringify(validateAutoPosPacket(raw)));
@@ -685,6 +702,175 @@ function createAutoPosUserscript(targetUrl) {
   return header.join('\n')+'\n(()=>{\n"use strict";\n'+[...autoPosShared,runAutoPosShortcut,runAutoPosUserscript].map(fn=>fn.toString()).join('\n')+'\nrunAutoPosUserscript('+JSON.stringify(href)+');\n})();\n';
 }
 
+
+// Parse only the values rendered by AutoPOS. Compare the exact payment names and
+// IDs observed at this store so a renamed or additional payment method cannot be
+// mistaken for cash, LINE Pay, or the terminal credit card.
+function parseAutoPosBiReport({date, storeLabel, indicators, receipts, summaryReadAt, receiptsReadAt, capturedAt}) {
+  if (storeLabel !== '(10001) 高雄篤敬店') throw new Error('請在行動 BI 選擇高雄篤敬店（10001）。');
+  const integer = (value, label) => {
+    if (typeof value !== 'string' || !/^(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.0+)?$/.test(value)) {
+      throw new Error(`「${label}」缺少完整數字。請在行動 BI 使用原始數值格式，並核對該日報表。`);
+    }
+    const n = Number(value.replaceAll(',', ''));
+    if (!Number.isSafeInteger(n) || n < 0 || n > 999999999) throw new Error(`「${label}」數字超出日報可帶入範圍。`);
+    return n;
+  };
+  const oneAmount = (rows, label) => {
+    const matches = rows.filter(([name]) => name === label);
+    if (matches.length !== 1) throw new Error(`找不到唯一的「${label}」欄位，請核對行動 BI 報表。`);
+    return integer(matches[0][1], label);
+  };
+  const rejectReversals = rows => {
+    for (const [label, value] of rows) {
+      if (['退款金額', '退款筆數', '退貨金額', '退貨筆數', '退貨單數'].includes(label) && integer(value, label) !== 0) {
+        throw new Error('該日報表包含退款或退貨，請人工核對後填寫。');
+      }
+    }
+  };
+  const expected = [
+    ['(CASH)', '現金', 'cash'],
+    ['(LINEPAY)', 'LINE Pay', 'linepay'],
+    ['(CreditCardMachin)', '聯合信用卡', 'credit'],
+  ];
+  if (receipts.length !== expected.length) throw new Error('行動 BI 收款方式必須完整列出現金、LINE Pay、聯合信用卡三組，請人工核對缺項或其他收款。');
+  rejectReversals(indicators);
+  const store = {date, store: '高雄篤敬店', storeCode: '10001'};
+  const summary = {
+    ...store, queriedAt: summaryReadAt,
+    revenue: oneAmount(indicators, '營業收入'), cups: oneAmount(indicators, '商品件數'),
+  };
+  const receipt = {...store, queriedAt: receiptsReadAt, accountType: '營收'};
+  for (const [code, name, key] of expected) {
+    const matches = receipts.filter(row => row.code === code && row.name === name);
+    if (matches.length !== 1) throw new Error(`找不到唯一的「${name}」收款組別，請人工核對付款方式。`);
+    rejectReversals(matches[0].rows);
+    receipt[key] = oneAmount(matches[0].rows, '收款金額');
+  }
+  return validateAutoPosPacket({v: 1, source: 'autopos', method: 'mobile-bi', date, summary, receipt, capturedAt});
+}
+
+async function readAutoPosBiReport({
+  doc = document,
+  page = location,
+  now = Date.now,
+  delay = ms => new Promise(resolve => setTimeout(resolve, ms)),
+  timeoutMs = 18000,
+} = {}) {
+  const label = element => (element?.textContent || '').replace(/\s+/g, ' ').trim();
+  const one = (root, selector) => {
+    const elements = root.querySelectorAll(selector);
+    return elements.length === 1 ? elements[0] : null;
+  };
+  const readDay = root => {
+    const picker = one(root, '.date-range-picker');
+    const selected = picker && label(one(picker, '.tab-item.active .tab-title'));
+    if (!['今日', '昨日'].includes(selected)) throw new Error('請在行動 BI 選擇「今日」或「昨日」的單日報表。');
+    const displayed = label(one(picker, '.date-display'));
+    const match = /^(\d{4}-\d{2}-\d{2})(?:\s+星期[日天一二三四五六])?$/.exec(displayed);
+    const date = match?.[1];
+    const stamp = Date.parse(date || '');
+    if (!date || !Number.isFinite(stamp) || new Date(stamp).toISOString().slice(0, 10) !== date) {
+      throw new Error('無法確認行動 BI 的完整營業日期。');
+    }
+    return date;
+  };
+  const visibleRows = (root, selector) => Array.from(root.querySelectorAll(selector), row => {
+    const values = Array.from(row.querySelectorAll(':scope > .item-title'), label);
+    if (values.length !== 2 || !values[0]) throw new Error('行動 BI 報表欄位格式已變更，請人工核對。');
+    return values;
+  });
+  const deadline = now() + timeoutMs;
+  const wait = async (probe, message) => {
+    for (let attempts = 0; attempts <= Math.ceil(timeoutMs / 150) && now() <= deadline; attempts++) {
+      const value = probe();
+      if (value) return value;
+      await delay(150);
+    }
+    throw new Error(message);
+  };
+  const readAt = () => new Date(now()).toISOString();
+
+  if (page.origin !== 'https://autopos.cloud' || page.pathname !== '/h5be/brandPage') {
+    throw new Error('請先在 Safari 登入 AutoPOS 行動 BI，進入高雄篤敬店的營運首頁，再從分享選單執行。');
+  }
+  const home = one(doc, '.brand-page');
+  if (!home) throw new Error('找不到行動 BI 門市首頁，請先開啟高雄篤敬店。');
+  const storeLabel = label(one(home, '.fixed-header .brand-selector .brand-name'));
+  if (storeLabel !== '(10001) 高雄篤敬店') throw new Error('請先選擇高雄篤敬店（10001），確認上方顯示門市，再執行捷徑。');
+  const date = readDay(home);
+  const dashboards = Array.from(home.querySelectorAll('.dashboard-card')).filter(card =>
+    ['營運看板', '營運儀表板'].includes(label(one(card, '.dashboard-title'))));
+  if (dashboards.length !== 1) throw new Error('找不到高雄篤敬店的營運看板。');
+  const dashboard = dashboards[0];
+  if (label(one(dashboard, '.channel-tab-item.active .channel-tab-title')) !== '全部') {
+    throw new Error('請先在營運看板將訂單渠道切換成「全部」。');
+  }
+  const openDetails = one(dashboard, '.view-details');
+  if (!openDetails || !/^查看(?:明細|詳情)(?:\s*>>)?$/.test(label(openDetails))) throw new Error('找不到營運看板的「查看明細」。');
+  openDetails.click();
+
+  const detail = await wait(() => {
+    if (page.pathname === '/h5be/brandPage') return null;
+    if (page.origin !== 'https://autopos.cloud' || page.pathname !== '/h5be/operationsDetail') {
+      throw new Error('行動 BI 未進入營運明細，請確認登入狀態後重試。');
+    }
+    const root = one(doc, '.operations-detail-page');
+    return root && one(root, '.date-range-picker .tab-item.active .tab-title') ? root : null;
+  }, '讀取行動 BI 營運明細逾時，請確認網路及登入狀態後重試。');
+  const checkDetail = () => {
+    if (page.origin !== 'https://autopos.cloud' || page.pathname !== '/h5be/operationsDetail' || one(doc, '.operations-detail-page') !== detail || readDay(detail) !== date) {
+      throw new Error('行動 BI 頁面或營業日期已改變，請回門市首頁重新執行。');
+    }
+  };
+  const activeCategory = () => label(one(detail, '.category-tab-item.active .tab-title'));
+  const indicators = await wait(() => {
+    checkDetail();
+    if (activeCategory() !== '指標') throw new Error('行動 BI 指標頁已切換，請回門市首頁重試。');
+    const rows = visibleRows(detail, '.indicator-item-wrap .detail-item-cell > .item-row:first-child');
+    return ['營業收入', '商品件數'].every(name => rows.some(([key]) => key === name)) ? rows : null;
+  }, '行動 BI 未提供完整的營業收入及商品件數，請核對該日資料。');
+  const summaryReadAt = readAt();
+
+  const tabs = Array.from(detail.querySelectorAll('.category-tab-item')).filter(tab => label(one(tab, '.tab-title')) === '收款');
+  if (tabs.length !== 1) throw new Error('找不到行動 BI 的「收款」分頁。');
+  tabs[0].click();
+  const receipts = await wait(() => {
+    checkDetail();
+    if (activeCategory() !== '收款') return null;
+    if (detail.querySelector('.loading-more') || !one(detail, '.no-more')) return null;
+    return Array.from(detail.querySelectorAll('.receipts-group'), group => ({
+      code: label(one(group, '.receipts-title .code')),
+      name: label(one(group, '.receipts-title .name')),
+      rows: visibleRows(group, '.receipts-item-wrap .detail-item-cell > .item-row:first-child'),
+    }));
+  }, '行動 BI 收款列表未完整載入，請核對該日收款資料後重試。');
+  const receiptsReadAt = readAt();
+  checkDetail();
+  return parseAutoPosBiReport({date, storeLabel, indicators, receipts, summaryReadAt, receiptsReadAt, capturedAt: readAt()});
+}
+
+async function runAutoPosBiShortcut(targetUrl) {
+  let destination;
+  try {
+    destination = targetUrl + '#autopos=' + encodeAutoPosPacket(await readAutoPosBiReport());
+  } catch (error) {
+    destination = targetUrl + '#autopos-error=' + encodeURIComponent(error.message || '行動 BI 未帶入資料，請核對報表。');
+  }
+  completion(destination);
+}
+
+function createAutoPosBiShortcut(targetUrl) {
+  const url = new URL(targetUrl);
+  if (url.origin !== 'https://wuxia1005.github.io' || url.pathname !== '/compose-daily/' || url.search || url.hash || url.username || url.password) {
+    throw new Error('捷徑只能回到正式 COMPOSE 日報網址。');
+  }
+  const functions = [validateAutoPosPacket, encodeAutoPosPacket, parseAutoPosBiReport, readAutoPosBiReport, runAutoPosBiShortcut];
+  return '// COMPOSE 日報行動 BI 試用捷徑：僅讀取目前已登入的單日報表畫面。\n' +
+    '(()=>{\n' + functions.map(fn => fn.toString()).join('\n') +
+    '\nrunAutoPosBiShortcut(' + JSON.stringify(url.href) + ');\n})();\n';
+}
+
 const $=id=>document.getElementById(id), sections=['prepare','monthly','count','complete','bad-link','loading'];
 {const splash=$('splash');if(splash){if(getComputedStyle(splash).visibility==='hidden')splash.remove();else{let leaving=false;splash.addEventListener('animationstart',e=>{if(e.target===splash)leaving=true;});splash.addEventListener('animationend',e=>{if(e.target===splash)splash.remove();});const skip=()=>{if(!leaving)splash.classList.add('splash-skip');};splash.addEventListener('pointerdown',skip);if(location.hash.startsWith('#autopos'))skip();}}}
 let report=null,prepared=null,output=null,pdfUrl=null,dirty=false,importData=null,expenses=[],id=null,receiver=false,sourceRevision=0,initializationRevision=0;
@@ -730,14 +916,48 @@ $('parse-tables').addEventListener('click',()=>{try{const a=parseTable($('summar
 for(const id of ['summary-paste','receipt-paste'])$(id).addEventListener('input',()=>{importData=null;$('import-preview').hidden=true;});
 $('apply-import').addEventListener('click',()=>{if(!importData)return;for(const [key,value]of Object.entries(importData))if($(key))$(key).value=value;changedSource();checkPayments();$('import-status').textContent='已帶入，請核對整張日報；零用金由門市人員填寫。';});
 window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='';}});
-async function initialize(){const token=++initializationRevision;receiver=false;drawExpenses();const hash=location.hash;pendingAutoPos=null;$('autopos-review').hidden=true;clearError('autopos-error');if(hash.startsWith('#autopos=')||hash.startsWith('#autopos-error=')){show('prepare');if(!$('date').value){const t=new Date(Date.now()+8*3600000).toISOString().slice(0,10);$('date').value=t;$('ledger-month').value=t.slice(0,7);}try{if(hash.startsWith('#autopos-error='))throw new Error(decodeURIComponent(hash.slice(15)).slice(0,300));pendingAutoPos=decodeAutoPosPacket(hash.slice(9));const f=autoPosFields(pendingAutoPos);dl('autopos-values',[['營業日期',f.date],['門市',f.store],['營業收入',format(f.revenue)+' 元'],['現金',format(f.cash)+' 元'],['LINE Pay',format(f.linepay)+' 元'],['信用卡',format(f.credit)+' 元'],['商品件數',format(f.cups)],['收款核對','合計 '+format(f.cash+f.linepay+f.credit)+' 元，一致']]);$('autopos-time').textContent='營業匯總查詢：'+new Date(pendingAutoPos.summary.queriedAt).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'})+'；收款統計查詢：'+new Date(pendingAutoPos.receipt.queriedAt).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'});const age=Date.now()-Date.parse(pendingAutoPos.capturedAt);const today=new Date(Date.now()+8*3600000).toISOString().slice(0,10);$('autopos-warning').textContent=(f.date!==today?`注意：這是 ${f.date} 的資料，不是今天（${today}）。`:'')+(age>900000?'這是超過 15 分鐘前取得的資料；結帳請重新查詢。':age< -300000?'查詢時間晚於手機時間，請先核對日期與裝置時間。':'請核對兩份報表與下列數字，再確認帶入。');$('autopos-review').hidden=false;}catch(e){pendingAutoPos=null;error('autopos-error',e);}return;}if(hash){receiver=true;try{if(!hash.startsWith('#report='))throw new Error('日報連結格式不正確。');show('loading');const decoded=await decodeSharedReport(hash.slice(8));if(token!==initializationRevision)return;receive(decoded);}catch(e){if(token!==initializationRevision)return;$('bad-link-message').textContent=e.message;show('bad-link');}}else{const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());$('date').value=['year','month','day'].map(t=>parts.find(p=>p.type===t).value).join('-');$('ledger-month').value=$('date').value.slice(0,7);show('prepare');}}
+function renderAutoPosReview(packet){
+  const fields=autoPosFields(packet), isMobileBi=packet.method==='mobile-bi';
+  const toTaipei=value=>new Date(value).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'});
+  $('autopos-review-heading').textContent=isMobileBi?'核對行動 BI 資料':'核對 AutoPOS 資料';
+  dl('autopos-values',[
+    ['營業日期',fields.date],['門市',fields.store],['營業收入',format(fields.revenue)+' 元'],
+    ['現金',format(fields.cash)+' 元'],['LINE Pay',format(fields.linepay)+' 元'],['信用卡',format(fields.credit)+' 元'],
+    ['商品件數',format(fields.cups)],['收款核對','合計 '+format(fields.cash+fields.linepay+fields.credit)+' 元，一致']
+  ]);
+  $('autopos-time').textContent=isMobileBi
+    ?`行動 BI 讀取時間：${toTaipei(packet.capturedAt)}`
+    :`營業匯總查詢：${toTaipei(packet.summary.queriedAt)}；收款統計查詢：${toTaipei(packet.receipt.queriedAt)}`;
+  const age=Date.now()-Date.parse(packet.capturedAt),today=new Date(Date.now()+8*3600000).toISOString().slice(0,10);
+  const dateNotice=fields.date===today?'':`注意：這是 ${fields.date} 的資料，不是今天（${today}）。`;
+  let reviewNotice='請核對日期、門市和金額，再確認帶入。';
+  if(age>900000)reviewNotice='這是超過 15 分鐘前取得的資料；結帳請重新查詢。';
+  if(age< -300000)reviewNotice='讀取時間晚於手機時間，請先核對日期與裝置時間。';
+  $('autopos-warning').textContent=dateNotice+reviewNotice;
+  $('autopos-review').hidden=false;
+}
+async function initialize(){const token=++initializationRevision;receiver=false;drawExpenses();const hash=location.hash;pendingAutoPos=null;$('autopos-review').hidden=true;clearError('autopos-error');if(hash.startsWith('#autopos=')||hash.startsWith('#autopos-error=')){show('prepare');if(!$('date').value){const t=new Date(Date.now()+8*3600000).toISOString().slice(0,10);$('date').value=t;$('ledger-month').value=t.slice(0,7);}try{if(hash.startsWith('#autopos-error='))throw new Error(decodeURIComponent(hash.slice(15)).slice(0,300));pendingAutoPos=decodeAutoPosPacket(hash.slice(9));renderAutoPosReview(pendingAutoPos);}catch(e){pendingAutoPos=null;error('autopos-error',e);}return;}if(hash){receiver=true;try{if(!hash.startsWith('#report='))throw new Error('日報連結格式不正確。');show('loading');const decoded=await decodeSharedReport(hash.slice(8));if(token!==initializationRevision)return;receive(decoded);}catch(e){if(token!==initializationRevision)return;$('bad-link-message').textContent=e.message;show('bad-link');}}else{const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());$('date').value=['year','month','day'].map(t=>parts.find(p=>p.type===t).value).join('-');$('ledger-month').value=$('date').value.slice(0,7);show('prepare');}}
 
-$('autopos-script').value=createAutoPosShortcut('https://wuxia1005.github.io/compose-daily/');
+const autoPosReturnUrl='https://wuxia1005.github.io/compose-daily/';
+function setupAutoPosCopy(prefix, script){
+  const field=$(prefix+'-script'),status=$(prefix+'-setup-status');
+  field.value=script;
+  $(prefix+'-copy-script').addEventListener('click',async()=>{
+    try{
+      await navigator.clipboard.writeText(field.value);
+      status.textContent='已複製，請貼入捷徑的 JavaScript 動作。';
+    }catch{
+      field.focus();field.select();
+      status.textContent='請長按程式欄位，全選後複製。';
+    }
+  });
+}
+setupAutoPosCopy('autopos',createAutoPosShortcut(autoPosReturnUrl));
+setupAutoPosCopy('autopos-bi',createAutoPosBiShortcut(autoPosReturnUrl));
 // The installed userscript on AutoPOS reads this day, then returns here with #autopos=…; an empty date means today in Taipei.
 // It opens the AutoPOS sign-in portal, not a report page: signed-out report pages redirect and would lose the request.
 function updateAutoPosLink(){const v=$('date').value,date=/^\d{4}-\d{2}-\d{2}$/.test(v)?v:new Date(Date.now()+8*3600000).toISOString().slice(0,10);$('autopos-go').href='https://autopos.cloud/?compose-daily='+date;}
 for(const type of ['input','change'])$('date').addEventListener(type,updateAutoPosLink);$('autopos-go').addEventListener('click',updateAutoPosLink);updateAutoPosLink();
-$('autopos-copy-script').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('autopos-script').value);$('autopos-setup-status').textContent='已複製，請貼入捷徑的 JavaScript 動作。';}catch{$('autopos-script').focus();$('autopos-script').select();$('autopos-setup-status').textContent='請長按程式欄位，全選後複製。';}});
 function clearAutoPosReview(){pendingAutoPos=null;$('autopos-review').hidden=true;history.replaceState(null,'',location.pathname+location.search);}
 $('autopos-cancel').addEventListener('click',()=>{clearAutoPosReview();$('autopos-status').textContent='已取消，日報欄位與本機紀錄未變更。';});
 $('autopos-apply').addEventListener('click',()=>{if(!pendingAutoPos)return;try{const f=autoPosFields(pendingAutoPos);for(const [key,value]of Object.entries(f))$(key).value=value;for(const key of ['deliveryCups','deliveryAmount'])$(key).value='';changedSource();checkPayments();$('ledger-month').value=f.date.slice(0,7);clearAutoPosReview();importData=null;$('import-preview').hidden=true;$('autopos-status').textContent='已帶入。請補填外送資料並核對整張日報，再產生點算連結；尚未寫入月統計或草稿。';$('prepare-form').scrollIntoView({behavior:'smooth',block:'start'});}catch(e){error('autopos-error',e);}});

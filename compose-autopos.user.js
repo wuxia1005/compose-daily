@@ -27,7 +27,9 @@ function validateAutoPosPacket(raw) {
   const times=[summary.queriedAt,receipt.queriedAt].map(Date.parse);
   if(Math.abs(times[0]-times[1])>120000)throw new Error('兩份報表查詢時間相差超過 2 分鐘，請重新查詢。');
   if(times.some(t=>t>Date.parse(capturedAt)+300000 || Date.parse(capturedAt)-t>300000))throw new Error('報表不是本次的新查詢結果，請確認手機時間並重新查詢。');
-  return {v:1,source:'autopos',date:raw.date,summary,receipt,capturedAt};
+  const packet={v:1,source:'autopos',date:raw.date,summary,receipt,capturedAt};
+  if(raw.method==='mobile-bi')packet.method='mobile-bi';
+  return packet;
 }
 function encodeAutoPosPacket(raw) {
   const bytes=new TextEncoder().encode(JSON.stringify(validateAutoPosPacket(raw)));
