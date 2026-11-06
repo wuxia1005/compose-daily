@@ -6,7 +6,7 @@
   <meta name="apple-mobile-web-app-title" content="COMPOSE日報">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=1.0.1">
   <meta name="description" content="COMPOSE 門市日報：本機準備、免登入點算簽名、下載 PDF。">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=' 'sha256-wEoJZ3+ugSNGxdbuGzqoBpzK8mAXJrLQQe/Ui3dsnxk='; style-src 'sha256-ocemRDWZ6brxrGy8CzdWqJ0hhl3XMzWZGlSJLhLlL9k='; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-D5pcrQeUHwgmWGyU4InYm5GMRuXBfPLVo8b2ZuO8aU8=' 'sha256-uzZODeSXNXH+NcWaiJ+0tjtssXd7UKZGHI/IKiH36Qo='; style-src 'sha256-6SBsXSJDXKru9K7C3gJJCOAnkip7K67xhBGoSUbTcKg='; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <!-- Bundled pdf-lib license:
 MIT License
 
@@ -34,6 +34,7 @@ SOFTWARE.
 <title>COMPOSE COFFEE｜門市日報</title><style>:root{color-scheme:light;--yellow:#ffd400;--ink:#202020;--muted:#69665f;--line:#e4e0d6;--soft:#fff8db;--paper:#fff;--error:#a12727;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',system-ui,sans-serif;font-size:16px;line-height:1.6;color:var(--ink);background:#f4f2ec}
 *{box-sizing:border-box}body{margin:0}button,input,textarea{font:inherit}button,a,input,textarea,summary{-webkit-tap-highlight-color:transparent}button{cursor:pointer;min-height:46px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font-weight:500}button:hover{background:var(--soft)}button:disabled{opacity:.5;cursor:wait}button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #a08700;outline-offset:3px}.primary{background:var(--yellow);border-color:var(--yellow)}.primary:hover{background:#f4c900}.full{width:100%;margin-top:14px}.app{max-width:520px;min-height:100vh;margin:auto;background:var(--paper);box-shadow:0 0 35px #302c1910}.brand{background:var(--yellow);border-bottom:3px solid var(--ink);padding:26px 22px 20px}.brand-top{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600;letter-spacing:1px}.version{font-size:12px;white-space:nowrap;letter-spacing:0;border:1px solid #998000;border-radius:20px;padding:3px 10px}h1{font-size:28px;line-height:1.4;font-weight:600;margin:14px 0 4px}h2{font-size:18px;line-height:1.5;font-weight:600;margin:0}p{margin:8px 0 16px}.brand p{font-size:14px;margin:0}main{padding:24px 22px}label{display:block;font-size:14px;margin-bottom:14px}input:not([type=checkbox]),textarea{display:block;width:100%;min-width:0;min-height:48px;margin-top:6px;padding:11px 12px;border:1px solid #cfcbbf;border-radius:9px;color:var(--ink);background:#fff;font-size:16px}textarea{resize:vertical}input[readonly],textarea[readonly]{background:#f7f6f2}input[type=checkbox]{width:22px;height:22px;margin:2px 0;flex-shrink:0;accent-color:#292719}.check{display:flex;gap:10px;align-items:flex-start}.two{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.money{display:flex;gap:10px;align-items:center}.money span{padding-top:6px}.money input{min-width:0}.heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.spaced{margin-top:24px}.tag{font-size:12px;padding:4px 10px;background:var(--soft);border-radius:20px;white-space:nowrap}.muted,.help{color:var(--muted);font-size:13px}.error{color:var(--error);font-size:14px}.row,dl>div{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--line)}dl{margin:12px 0 22px}dt{color:var(--muted);font-size:14px}dd{margin:0;font-variant-numeric:tabular-nums;text-align:right}strong{font-weight:600;font-variant-numeric:tabular-nums}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.actions>button{flex:1}.share-panel{background:#fffdf5;border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:24px}.share-panel textarea{font-size:13px;overflow-wrap:anywhere}.count-input input{font-size:28px;line-height:1.5}.pos-cash{background:var(--soft);padding:14px;border-radius:10px;border:0}.calculation{background:var(--soft);padding:2px 14px;border-radius:10px}.calculation>div:last-child{border:0}.quiet{min-height:44px;border:0;background:transparent;color:var(--muted);font-size:14px;padding:8px}#signature{display:block;width:100%;height:180px;border:1px dashed #999383;border-radius:10px;background:#fffdf5;touch-action:none}.center{text-align:center}#report-preview{display:block;width:100%;border:1px solid var(--line);height:auto}.expense-row{display:grid;grid-template-columns:minmax(0,1fr) 100px 38px;gap:8px;margin-bottom:6px;align-items:end}.expense-row label{margin-bottom:0}.expense-row input{padding:10px 8px}.expense-row button{padding:8px 4px;margin-bottom:1px}.notes,.import-box,.usage{margin:22px 0;padding:14px;border:1px solid var(--line);border-radius:10px}.usage{margin-bottom:0}.usage p{font-size:13px;color:var(--muted)}details>summary{cursor:pointer;font-size:14px;font-weight:500;min-height:24px}details[open]>summary{margin-bottom:14px}.import-box{background:#faf9f5}.import-box textarea{font-size:13px}#receiver-expenses>div{border-bottom:1px solid var(--line);padding:8px 0;overflow-wrap:anywhere}footer{border-top:1px solid var(--line);font-size:12px;color:var(--muted);text-align:center;padding:16px 12px}#share-status,#complete-status,#import-status{font-size:13px;overflow-wrap:anywhere}[hidden]{display:none!important}@media(max-width:370px){main{padding:20px 16px}.brand{padding:22px 16px}.two{gap:0 10px}.expense-row{grid-template-columns:minmax(0,1fr) 80px 34px;gap:6px}.brand-top{letter-spacing:0}.share-panel{padding:14px}}
 .wordmark{flex:1;min-width:0;max-width:360px;display:block}.wordmark img{display:block;width:100%;height:auto}#subtitle{letter-spacing:.3px}
+label[for="autopos-bi-date"]{margin-bottom:4px}#autopos-bi-date{margin:0 0 12px}#autopos-bi-go:focus-visible{outline:3px solid #a08700;outline-offset:3px}#autopos-review{scroll-margin-top:16px}
 .autopos-box{border:1px solid #d8bd42;border-radius:12px;background:#fffbea;padding:16px;margin:18px 0}.autopos-box p{font-size:14px;line-height:1.7}.autopos-box .help{font-size:12px}.autopos-box ol{padding-left:22px;font-size:13px;line-height:1.8}.autopos-box li{margin-bottom:8px}.autopos-open{display:block;text-align:center;padding:12px;background:#ffd400;color:#202020;border-radius:8px;font-weight:700;text-decoration:none}.autopos-box details{margin-top:16px}.autopos-box details .autopos-open{margin:10px 0;background:#fff;border:1px solid #d8bd42;font-weight:500}.autopos-box li a{color:inherit;font-weight:700}.autopos-box summary{cursor:pointer;font-weight:700}.autopos-box textarea{font:12px/1.5 monospace;overflow-wrap:anywhere}.autopos-box dl dd{overflow-wrap:anywhere;max-width:65%}#autopos-review{margin-top:18px;border-top:1px solid #d8bd42;padding-top:14px}#autopos-warning{font-weight:bold}
 .home-tabs{display:flex;gap:6px;margin:-10px 0 22px;border-bottom:1px solid var(--line);padding-bottom:10px}.home-tabs button{flex:1;font-size:14px;border-color:transparent}.home-tabs button[aria-pressed=true]{background:var(--yellow);border-color:var(--yellow)}.month-metric,.month-snapshot{background:var(--soft);padding:16px;border-radius:12px}.month-metric{display:flex;flex-direction:column;gap:4px}.month-metric strong{font-size:30px}.month-snapshot dl{margin:0 0 10px}.month-snapshot dl>div:last-child{border:0}.month-snapshot p{margin:0}.ledger-table table{width:100%;border-collapse:collapse;font-size:13px}.ledger-table th,.ledger-table td{padding:12px 4px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}.ledger-table th:first-child,.ledger-table td:first-child{text-align:left}#record-values dd{overflow-wrap:anywhere;max-width:72%}#record-values dt{flex-shrink:0}input[type=file]{font-size:13px;overflow:hidden}#record-conflict{overflow-wrap:anywhere}
 .signature-trigger{display:flex;width:100%;min-height:150px;align-items:center;justify-content:center;background:#fffdf5;border:1px dashed #999383;color:var(--muted)}#open-signature #signature{height:auto;width:100%;border:0;background:transparent;touch-action:auto}.signature-modal{position:fixed;inset:0;z-index:1000;background:#fff;height:100vh;height:100dvh;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}.signature-draw,.signature-review{display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:100%;min-height:0}.signature-top{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--yellow);padding:10px 16px;border-bottom:2px solid var(--ink)}.signature-top button{background:transparent;border-color:#998000}.signature-workspace{position:relative;min-height:0;background:#fffdf5;margin:12px}.signature-workspace canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;background:#fff;border:1px solid var(--line);border-radius:8px}.signature-bottom{padding:8px 16px 16px;background:#fff}.signature-bottom .heading{margin:0}.signature-bottom .help{margin:0}.signature-bottom .full{margin-top:8px}.signature-bottom .error{margin:6px 0}.signature-review-body{width:100%;max-width:760px;margin:auto;padding:16px;overflow:auto;max-height:100%}#signature-review-canvas{display:block;width:100%;height:auto;background:#fffdf5;border:1px solid var(--line);border-radius:10px}.signature-review-body .actions{margin-top:10px}#previous-record-values dd{font-size:14px;overflow-wrap:anywhere}#previous-record-values dt{font-size:13px}
@@ -55,10 +56,23 @@ SOFTWARE.
       <div class="heading"><h2>準備當日日報</h2><span class="tag">準備人員</span></div>
       <p class="help">資料只在此裝置處理。確認後產生連結，親點人員免登入填金額、簽名。</p>
       <section class="autopos-box" aria-labelledby="autopos-heading">
-        <div class="heading"><h2 id="autopos-heading">AutoPOS 行動 BI 帶入</h2><span class="tag">iPhone 測試版</span></div>
-        <p>在 Safari 的行動 BI 首頁選「高雄篤敬店」、「全部」通路與「今日」或「昨日」，再從分享選單執行「COMPOSE 帶入日報」。</p>
-        <a class="autopos-open" href="https://autopos.cloud/h5be/brandPage" target="_blank" rel="noopener noreferrer">開啟 AutoPOS 行動 BI</a>
-        <details id="autopos-bi-setup"><summary>更新 iPhone 捷徑</summary>
+        <div class="heading"><h2 id="autopos-heading">AutoPOS 行動 BI 帶入</h2><span class="tag">iPhone Safari</span></div>
+        <label for="autopos-bi-date">要帶入的營業日期</label>
+        <input id="autopos-bi-date" type="date" min="2020-01-01" required aria-describedby="autopos-bi-help">
+        <a id="autopos-bi-go" class="autopos-open" href="https://autopos.cloud/" target="_blank" rel="noopener noreferrer">一鍵帶入日報</a>
+        <p id="autopos-bi-help" class="help">查詢高雄篤敬店。登入有效時會自動回到日報核對，按「確認帶入日報」才會填入。登入過期時，請先在開啟的分頁登入。</p>
+        <p id="autopos-error" class="error" role="alert" hidden></p>
+        <section id="autopos-review" hidden aria-label="AutoPOS 帶入核對">
+          <h2 id="autopos-review-heading">核對 AutoPOS 資料</h2><dl id="autopos-values"></dl>
+          <p id="autopos-time" class="help"></p><p id="autopos-warning" class="help"></p>
+          <p class="help">尚未變更日報。營業中的數字會變動，請於結帳後重新查詢。確認帶入將替換營業欄位，並清空原有外送欄位，請另行補填。</p>
+          <button type="button" id="autopos-apply" class="primary full">確認帶入日報</button><button type="button" id="autopos-cancel" class="full">取消這次帶入</button>
+        </section><p id="autopos-status" class="help" role="status"></p>
+        <details id="autopos-ext-setup"><summary>首次設定（每支 iPhone 做一次）</summary>
+          <ol><li>在 App Store 安裝免費的「Userscripts」，開啟 App 並依提示設定腳本資料夾。</li><li>打開「設定」→「App」→「Safari」→「延伸功能」，開啟 Userscripts。依 Safari 提示允許它在 AutoPOS 與本日報網站運作。</li><li>用 Safari 開啟<a href="compose-autopos.user.js">安裝或更新 COMPOSE 帶入程式</a>，從 Safari 頁面選單開啟「Userscripts」，依畫面提示安裝腳本。曾安裝舊版的人重做這一步即可。</li></ol>
+          <p class="help">設定後，平常從 Safari 打開日報、選日期、按一鍵帶入即可。開啟 AutoPOS 時會顯示「COMPOSE 日報」進度提示。</p>
+        </details>
+        <details id="autopos-bi-setup"><summary>備用：行動 BI 捷徑</summary>
           <ol>
             <li>點下方「複製行動 BI 捷徑程式」。</li>
             <li>打開「捷徑」App 編輯「COMPOSE 帶入日報」，在「於捷徑輸入上執行 JavaScript」的程式欄全選，貼上新程式。下方「打開 URL」沿用「JavaScript 結果」。</li>
@@ -73,10 +87,6 @@ SOFTWARE.
         <p>按下後會開啟 AutoPOS，讀取下方「營業日期」那一天的兩份報表，再自動回到這裡核對。</p>
         <a id="autopos-go" class="autopos-open" href="https://autopos.cloud/">一鍵帶入 AutoPOS</a>
         <p class="help">請用 Safari，並先完成下方的首次設定。營業日期未填時讀取今天。會先開啟 AutoPOS 登入頁：登入仍有效時不用操作，幾秒後自動回來；已過期時請登入（版本選「商戶後台」），登入後自動繼續。畫面下方若沒有出現「COMPOSE 日報」提示，代表延伸功能尚未啟用。手機實機串接尚待驗收。</p>
-        <details id="autopos-ext-setup"><summary>首次設定（每支 iPhone 做一次）</summary>
-          <ol><li>在 App Store 安裝免費的「Userscripts」，安裝後開啟一次。</li><li>打開「設定」→「Safari」（iOS 18 起在「App」裡）→「延伸功能」→「Userscripts」，開啟並允許 autopos.cloud 與 wuxia1005.github.io。</li><li>用 Safari 點<a href="compose-autopos.user.js">安裝 COMPOSE 帶入程式</a>，在開啟的頁面點網址列旁的「大小」或頁面選單圖示 →「Userscripts」→ 點安裝提示。</li><li>回到日報，按「一鍵帶入 AutoPOS」。</li></ol>
-          <p class="help">帶入程式只在你按下按鈕後讀取高雄篤敬店的報表畫面文字，不讀取或保存帳密，不自動發送 LINE；僅在該分頁暫存「要帶入的日期」5 分鐘，供登入後接續。程式更新時重做第 3 步。請固定用保存月紀錄的 Safari。</p>
-        </details>
         <details id="autopos-setup"><summary>備用：不安裝 App，改用 iPhone 捷徑</summary>
           <p>Safari 登入 AutoPOS → 從分享選單執行「COMPOSE 帶入日報」捷徑 → 回到這裡核對。預設帶入當天；要帶入其他日期，先在 AutoPOS 把起訖日期設成同一天再執行。</p>
           <a class="autopos-open" href="https://autopos.cloud/beui/report/summary" target="_blank" rel="noopener noreferrer">開啟 AutoPOS 營業匯總</a>
@@ -87,15 +97,8 @@ SOFTWARE.
           <p class="help">只在你操作時查詢高雄篤敬店，不保存帳密、不自動發送 LINE。依 iPhone 提示允許捷徑在 AutoPOS 執行。請固定用保存月紀錄的 Safari；主畫面與其他瀏覽器不一定共用紀錄。Android 暫無此捷徑流程。</p>
         </details>
         </details>
-        <p id="autopos-error" class="error" role="alert" hidden></p>
-        <section id="autopos-review" hidden aria-label="AutoPOS 帶入核對">
-          <h2 id="autopos-review-heading">核對 AutoPOS 資料</h2><dl id="autopos-values"></dl>
-          <p id="autopos-time" class="help"></p><p id="autopos-warning" class="help"></p>
-          <p class="help">尚未變更日報。營業中的數字會變動，請於結帳後重新查詢。確認帶入將替換營業欄位，並清空原有外送欄位，請另行補填。</p>
-          <button type="button" id="autopos-apply" class="primary full">確認帶入日報</button><button type="button" id="autopos-cancel" class="full">取消這次帶入</button>
-        </section><p id="autopos-status" class="help" role="status"></p>
       </section>
-      <details class="import-box"><summary>從 AutoPOS 複製表格帶入</summary><p class="help">目前支援貼上表格，尚未直接連接 AutoPOS。分別複製「門市營業匯總」與「門市收款統計」的表頭及同一天、同一間門市的一列資料。</p><label>門市營業匯總<textarea id="summary-paste" rows="3" placeholder="營業日期　門市名稱　營業收入　商品件數…"></textarea></label><label>門市收款統計<textarea id="receipt-paste" rows="3" placeholder="營業日期　門市名稱　現金　聯合信用卡　LINE Pay…"></textarea></label><button type="button" id="parse-tables">解析並預覽</button><div id="import-preview" hidden><dl id="import-values"></dl><button type="button" id="apply-import">確認帶入下方欄位</button></div><p id="import-status" role="status"></p></details>
+      <details class="import-box"><summary>從 AutoPOS 複製表格帶入</summary><p class="help">分別複製「門市營業匯總」與「門市收款統計」的表頭及同一天、同一間門市的一列資料。</p><label>門市營業匯總<textarea id="summary-paste" rows="3" placeholder="營業日期　門市名稱　營業收入　商品件數…"></textarea></label><label>門市收款統計<textarea id="receipt-paste" rows="3" placeholder="營業日期　門市名稱　現金　聯合信用卡　LINE Pay…"></textarea></label><button type="button" id="parse-tables">解析並預覽</button><div id="import-preview" hidden><dl id="import-values"></dl><button type="button" id="apply-import">確認帶入下方欄位</button></div><p id="import-status" role="status"></p></details>
       <form id="prepare-form" novalidate>
         <div class="two"><label>營業日期<input id="date" type="date" required></label><label>門市名稱<input id="store" type="text" maxlength="32" value="高雄篤敬店" required></label></div>
         <div class="heading spaced"><h2>營業資料</h2><span class="muted">請核對來源</span></div>
@@ -695,11 +698,12 @@ function createAutoPosShortcut(targetUrl) {
 }
 
 // Published next to the site as compose-autopos.user.js; the path must end in .user.js for the extension to offer it.
-const AUTOPOS_USERSCRIPT_VERSION='1.0.0';
+const AUTOPOS_USERSCRIPT_VERSION='1.1.0';
 function createAutoPosUserscript(targetUrl) {
   const href=autoPosTarget(targetUrl,'帶入程式');
   const header=['// ==UserScript==','// @name        COMPOSE AutoPOS','// @description 在 AutoPOS 讀取指定營業日的報表數字，帶回 COMPOSE 門市日報；只讀畫面文字，不讀取帳密。','// @version     '+AUTOPOS_USERSCRIPT_VERSION,'// @match       https://autopos.cloud/*','// @run-at      document-start','// @inject-into page','// @noframes','// ==/UserScript=='];
-  return header.join('\n')+'\n(()=>{\n"use strict";\n'+[...autoPosShared,runAutoPosShortcut,runAutoPosUserscript].map(fn=>fn.toString()).join('\n')+'\nrunAutoPosUserscript('+JSON.stringify(href)+');\n})();\n';
+  const functions=[...autoPosShared,runAutoPosShortcut,runAutoPosUserscript,parseAutoPosBiReport,readAutoPosBiReport,runAutoPosBiUserscript];
+  return header.join('\n')+'\n(()=>{\n"use strict";\n'+functions.map(fn=>fn.toString()).join('\n')+'\nconst target='+JSON.stringify(href)+';\nif(!runAutoPosBiUserscript(target))runAutoPosUserscript(target);\n})();\n';
 }
 
 
@@ -756,6 +760,8 @@ async function readAutoPosBiReport({
   now = Date.now,
   delay = ms => new Promise(resolve => setTimeout(resolve, ms)),
   timeoutMs = 18000,
+  requestedDate,
+  cancelled = () => false,
 } = {}) {
   const label = element => (element?.textContent || '').replace(/\s+/g, ' ').trim();
   const one = (root, selector) => {
@@ -765,13 +771,14 @@ async function readAutoPosBiReport({
   const readDay = root => {
     const picker = one(root, '.date-range-picker');
     const selected = picker && label(one(picker, '.tab-item.active .tab-title'));
-    if (!['今日', '昨日'].includes(selected)) throw new Error('請在行動 BI 選擇「今日」或「昨日」的單日報表。');
-    const displayed = label(one(picker, '.date-display'));
-    const match = /^(\d{4}-\d{2}-\d{2})(?:\s+星期[日天一二三四五六])?$/.exec(displayed);
+    if (!['今日', '昨日', '自訂'].includes(selected)) return null;
+    const current = Array.from(picker.querySelectorAll('.date-info-row')).find(row => label(one(row, '.info-label')) === '本期');
+    const displayed = selected === '自訂' ? (current && label(one(current, '.info-value'))) : label(one(picker, '.date-display'));
+    const match = selected === '自訂' ? /^(\d{4}-\d{2}-\d{2})\s*~\s*\1$/.exec(displayed) : /^(\d{4}-\d{2}-\d{2})(?:\s+星期[日天一二三四五六])?$/.exec(displayed);
     const date = match?.[1];
     const stamp = Date.parse(date || '');
     if (!date || !Number.isFinite(stamp) || new Date(stamp).toISOString().slice(0, 10) !== date) {
-      throw new Error('無法確認行動 BI 的完整營業日期。');
+      return null;
     }
     return date;
   };
@@ -783,6 +790,7 @@ async function readAutoPosBiReport({
   const deadline = now() + timeoutMs;
   const wait = async (probe, message) => {
     for (let attempts = 0; attempts <= Math.ceil(timeoutMs / 150) && now() <= deadline; attempts++) {
+      if (cancelled()) throw new Error('已取消行動 BI 帶入。');
       const value = probe();
       if (value) return value;
       await delay(150);
@@ -790,6 +798,55 @@ async function readAutoPosBiReport({
     throw new Error(message);
   };
   const readAt = () => new Date(now()).toISOString();
+  const findLabel = (root, selector, text) => Array.from(root.querySelectorAll(selector)).find(element => label(element) === text);
+  const visible = (root, selector) => Array.from(root.querySelectorAll(selector)).find(element => element.getClientRects().length);
+  const selectDay = async home => {
+    const picker = one(home, '.date-range-picker');
+    const taipeiDate = offset => new Date(now() + 8 * 3600000 - offset * 86400000).toISOString().slice(0, 10);
+    const preset = requestedDate === taipeiDate(0) ? '今日' : requestedDate === taipeiDate(1) ? '昨日' : '自訂';
+    const tab = picker && findLabel(picker, '.tab-item .tab-title', preset);
+    if (!tab) throw new Error('找不到行動 BI 的日期選項。');
+    tab.click();
+    if (preset !== '自訂') return;
+
+    const settings = await wait(() => one(picker, '.custom-date-wrapper .settings-button'), '找不到自訂日期設定。');
+    settings.click();
+    const dialog = await wait(() => visible(doc, '.date-picker-dialog'), '無法開啟自訂日期設定。');
+    const dayMode = findLabel(dialog, '.mode-tab', '日');
+    if (!dayMode) throw new Error('找不到自訂日期的「日」模式。');
+    dayMode.click();
+    const period = text => Array.from(dialog.querySelectorAll('.day-picker .period-section')).find(section => label(one(section, '.period-label')) === text);
+    const current = await wait(() => period('本期'), '找不到自訂日期的本期欄位。');
+    const start = current.querySelector('.date-input');
+    if (!start) throw new Error('找不到自訂日期的起日欄位。');
+    start.click();
+
+    const calendar = await wait(() => visible(doc, '.van-calendar'), '無法開啟行動 BI 日曆。');
+    const [year, month, day] = requestedDate.split('-').map(Number);
+    const dateMonth = await wait(() => Array.from(calendar.querySelectorAll('.van-calendar__month')).find(element =>
+      label(one(element, '.van-calendar__month-title')) === `${year}年${month}月`), '找不到指定月份。');
+    const findDay = () => Array.from(dateMonth.querySelectorAll('.van-calendar__day')).find(element =>
+      !element.classList.contains('van-calendar__day--disabled') &&
+      Array.from(element.childNodes).some(node => node.nodeType === 3 && node.textContent.trim() === String(day)));
+    if (!findDay()) dateMonth.scrollIntoView({block:'start'});
+    (await wait(findDay, '指定日期在行動 BI 日曆中無法選取。')).click();
+    (await wait(findDay, '無法設定指定日期為迄日。')).click();
+    const confirmCalendar = await wait(() => {
+      const button = one(calendar, '.van-calendar__confirm');
+      const selected = findDay();
+      return selected?.classList.contains('van-calendar__day--start-end') && button && !button.disabled ? button : null;
+    }, '行動 BI 日曆未選成同一天。');
+    confirmCalendar.click();
+
+    await wait(() => {
+      const inputs = Array.from(current.querySelectorAll('.date-input'), label);
+      return inputs.length === 2 && inputs.every(value => value === requestedDate);
+    }, '行動 BI 的起迄日期與選擇不符。');
+    for (const clear of period('比較期間')?.querySelectorAll('.clear-icon') || []) clear.click();
+    const confirmDialog = one(dialog, '.dialog-footer .confirm-btn');
+    if (!confirmDialog) throw new Error('找不到自訂日期的確定按鈕。');
+    confirmDialog.click();
+  };
 
   if (page.origin !== 'https://autopos.cloud' || page.pathname !== '/h5be/brandPage') {
     throw new Error('請先在 Safari 登入 AutoPOS 行動 BI，進入高雄篤敬店的營運首頁，再從分享選單執行。');
@@ -797,15 +854,25 @@ async function readAutoPosBiReport({
   const home = one(doc, '.brand-page');
   if (!home) throw new Error('找不到行動 BI 門市首頁，請先開啟高雄篤敬店。');
   const storeLabel = label(one(home, '.fixed-header .brand-selector .brand-name'));
-  if (storeLabel !== '(10001) 高雄篤敬店') throw new Error('請先選擇高雄篤敬店（10001），確認上方顯示門市，再執行捷徑。');
+  if (storeLabel !== '(10001) 高雄篤敬店') throw new Error('請先在行動 BI 選擇高雄篤敬店（10001），再從 COMPOSE 帶入。');
+  if (requestedDate && readDay(home) !== requestedDate) {
+    await selectDay(home);
+    await wait(() => readDay(home) === requestedDate, '行動 BI 未切換到指定營業日期，請重試。');
+  }
   const date = readDay(home);
+  if (!date) throw new Error('請在行動 BI 選擇單日報表並核對營業日期。');
   const dashboards = Array.from(home.querySelectorAll('.dashboard-card')).filter(card =>
     ['營運看板', '營運儀表板'].includes(label(one(card, '.dashboard-title'))));
   if (dashboards.length !== 1) throw new Error('找不到高雄篤敬店的營運看板。');
   const dashboard = dashboards[0];
-  if (label(one(dashboard, '.channel-tab-item.active .channel-tab-title')) !== '全部') {
-    throw new Error('請先在營運看板將訂單渠道切換成「全部」。');
+  const allChannels = () => label(one(dashboard, '.channel-tab-item.active .channel-tab-title')) === '全部';
+  if (!allChannels()) {
+    const allTab = findLabel(dashboard, '.channel-tab-item .channel-tab-title', '全部');
+    if (!allTab || !requestedDate) throw new Error('請先在營運看板將訂單渠道切換成「全部」。');
+    allTab.click();
+    await wait(allChannels, '行動 BI 未切換到「全部」通路。');
   }
+  if (readDay(home) !== date) throw new Error('行動 BI 的營業日期已改變，請重試。');
   const openDetails = one(dashboard, '.view-details');
   if (!openDetails || !/^查看(?:明細|詳情)(?:\s*>>)?$/.test(label(openDetails))) throw new Error('找不到營運看板的「查看明細」。');
   openDetails.click();
@@ -848,6 +915,101 @@ async function readAutoPosBiReport({
   const receiptsReadAt = readAt();
   checkDetail();
   return parseAutoPosBiReport({date, storeLabel, indicators, receipts, summaryReadAt, receiptsReadAt, capturedAt: readAt()});
+}
+
+// Keep only the requested day in this AutoPOS tab so navigation during login can resume the import.
+function runAutoPosBiUserscript(targetUrl) {
+  if (window.top !== window || location.origin !== 'https://autopos.cloud') return false;
+  const KEY = 'compose-bi-pending';
+  const hold = 10 * 60 * 1000;
+  const params = new URLSearchParams(location.search);
+  const incoming = params.getAll('compose-bi');
+  let pending = '';
+  try { pending = sessionStorage.getItem(KEY) || ''; } catch {}
+  const [storedDay, expiry] = pending.split('|');
+  const requested = incoming.length > 0;
+  const date = requested ? incoming[0] : storedDay;
+  const expires = requested ? Date.now() + hold : Number(expiry);
+  if (!requested && !(expires > Date.now() && expires <= Date.now() + hold)) return false;
+
+  let stopped = false;
+  let notice;
+  let timer;
+  const finish = hash => {
+    stopped = true;
+    clearTimeout(timer);
+    try { sessionStorage.removeItem(KEY); } catch {}
+    notice?.remove();
+    location.replace(targetUrl + hash);
+  };
+  const fail = message => finish('#autopos-error=' + encodeURIComponent(message));
+  if (requested) {
+    params.delete('compose-bi');
+    const rest = params.toString();
+    history.replaceState(history.state, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
+  }
+  const stamp = Date.parse(date);
+  const today = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+  if (incoming.length > 1 || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(stamp) || new Date(stamp).toISOString().slice(0, 10) !== date || date < '2020-01-01' || date > today) {
+    fail('請選擇有效的營業日期。');
+    return true;
+  }
+  if (requested) {
+    try { sessionStorage.setItem(KEY, `${date}|${expires}`); } catch {
+      fail('Safari 無法保留這次查詢，請確認目前分頁允許網站暫存。');
+      return true;
+    }
+    // Start at the portal so the request is captured before AutoPOS can redirect a signed-out tab.
+    if (location.pathname === '/') {
+      location.replace('https://autopos.cloud/h5be/brandPage');
+      return true;
+    }
+  }
+
+  let message;
+  const show = text => {
+    if (!document.documentElement) return;
+    if (!notice) {
+      notice = document.createElement('div');
+      notice.setAttribute('role', 'status');
+      Object.assign(notice.style, {position:'fixed', left:'12px', right:'12px', top:'calc(12px + env(safe-area-inset-top))', zIndex:'2147483647', padding:'10px 14px', borderRadius:'12px', borderLeft:'6px solid #ffd400', background:'#202020', color:'#fff', font:'14px/1.6 system-ui,sans-serif'});
+      message = document.createElement('span');
+      const cancel = document.createElement('button');
+      cancel.type = 'button';
+      cancel.textContent = '取消並回到日報';
+      Object.assign(cancel.style, {margin:'6px 0 0 10px', minHeight:'36px', border:'0', borderRadius:'6px', padding:'4px 10px', background:'#ffd400', color:'#202020'});
+      cancel.addEventListener('click', () => finish(''));
+      notice.append(message, cancel);
+      document.documentElement.append(notice);
+    }
+    const display = 'COMPOSE 日報｜' + text;
+    if (message.textContent !== display) message.textContent = display;
+  };
+  const waitForHome = () => {
+    if (Date.now() >= expires) return fail('等待 AutoPOS 超過 10 分鐘，請重新帶入。');
+    if (location.pathname === '/h5be/brandPage' && document.querySelector('.brand-page .fixed-header .brand-selector .brand-name')?.textContent.trim() && document.querySelector('.brand-page .dashboard-card')) {
+      show(`正在讀取 ${date} 的行動 BI 報表，請稍候。`);
+      readAutoPosBiReport({requestedDate:date, timeoutMs:40000, cancelled:() => stopped}).then(packet => {
+        if (!stopped) finish('#autopos=' + encodeAutoPosPacket(packet));
+      }).catch(error => {
+        if (!stopped) fail(error.message || '行動 BI 讀取失敗，請重試。');
+      });
+      return;
+    }
+    if (document.querySelector('input[type=password]')) {
+      const version = document.querySelector('select.select-version');
+      if (version && version.value !== 'mobile' && Array.from(version.options).some(option => option.value === 'mobile')) {
+        version.value = 'mobile';
+        version.dispatchEvent(new Event('change', {bubbles:true}));
+      }
+      show(`請以「行動BI」登入 AutoPOS，登入後會接著查詢 ${date}。`);
+    } else {
+      show('正在開啟行動 BI，請稍候。');
+    }
+    timer = setTimeout(waitForHome, 500);
+  };
+  waitForHome();
+  return true;
 }
 
 async function runAutoPosBiShortcut(targetUrl) {
@@ -919,6 +1081,7 @@ window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.return
 function renderAutoPosReview(packet){
   const fields=autoPosFields(packet), isMobileBi=packet.method==='mobile-bi';
   const toTaipei=value=>new Date(value).toLocaleString('zh-TW',{timeZone:'Asia/Taipei'});
+  if(isMobileBi){$('autopos-bi-date').value=fields.date;updateAutoPosBiLink();}
   $('autopos-review-heading').textContent=isMobileBi?'核對行動 BI 資料':'核對 AutoPOS 資料';
   dl('autopos-values',[
     ['營業日期',fields.date],['門市',fields.store],['營業收入',format(fields.revenue)+' 元'],
@@ -935,6 +1098,7 @@ function renderAutoPosReview(packet){
   if(age< -300000)reviewNotice='讀取時間晚於手機時間，請先核對日期與裝置時間。';
   $('autopos-warning').textContent=dateNotice+reviewNotice;
   $('autopos-review').hidden=false;
+  $('autopos-review').scrollIntoView({block:'start'});
 }
 async function initialize(){const token=++initializationRevision;receiver=false;drawExpenses();const hash=location.hash;pendingAutoPos=null;$('autopos-review').hidden=true;clearError('autopos-error');if(hash.startsWith('#autopos=')||hash.startsWith('#autopos-error=')){show('prepare');if(!$('date').value){const t=new Date(Date.now()+8*3600000).toISOString().slice(0,10);$('date').value=t;$('ledger-month').value=t.slice(0,7);}try{if(hash.startsWith('#autopos-error='))throw new Error(decodeURIComponent(hash.slice(15)).slice(0,300));pendingAutoPos=decodeAutoPosPacket(hash.slice(9));renderAutoPosReview(pendingAutoPos);}catch(e){pendingAutoPos=null;error('autopos-error',e);}return;}if(hash){receiver=true;try{if(!hash.startsWith('#report='))throw new Error('日報連結格式不正確。');show('loading');const decoded=await decodeSharedReport(hash.slice(8));if(token!==initializationRevision)return;receive(decoded);}catch(e){if(token!==initializationRevision)return;$('bad-link-message').textContent=e.message;show('bad-link');}}else{const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());$('date').value=['year','month','day'].map(t=>parts.find(p=>p.type===t).value).join('-');$('ledger-month').value=$('date').value.slice(0,7);show('prepare');}}
 
@@ -954,6 +1118,23 @@ function setupAutoPosCopy(prefix, script){
 }
 setupAutoPosCopy('autopos',createAutoPosShortcut(autoPosReturnUrl));
 setupAutoPosCopy('autopos-bi',createAutoPosBiShortcut(autoPosReturnUrl));
+const autoPosBiDate=$('autopos-bi-date'),autoPosBiGo=$('autopos-bi-go');
+const autoPosBiToday=()=>new Date(Date.now()+8*3600000).toISOString().slice(0,10);
+function updateAutoPosBiLink(){
+  autoPosBiDate.max=autoPosBiToday();
+  autoPosBiGo.href='https://autopos.cloud/?compose-bi='+encodeURIComponent(autoPosBiDate.value);
+}
+autoPosBiDate.value=autoPosBiToday();
+for(const type of ['input','change'])autoPosBiDate.addEventListener(type,updateAutoPosBiLink);
+autoPosBiGo.addEventListener('click',event=>{
+  updateAutoPosBiLink();
+  if(!autoPosBiDate.validity.valid){
+    event.preventDefault();
+    error('autopos-error',new Error('請選擇今天或較早的有效營業日期。'));
+    autoPosBiDate.focus();
+  }else clearError('autopos-error');
+});
+updateAutoPosBiLink();
 // The installed userscript on AutoPOS reads this day, then returns here with #autopos=…; an empty date means today in Taipei.
 // It opens the AutoPOS sign-in portal, not a report page: signed-out report pages redirect and would lose the request.
 function updateAutoPosLink(){const v=$('date').value,date=/^\d{4}-\d{2}-\d{2}$/.test(v)?v:new Date(Date.now()+8*3600000).toISOString().slice(0,10);$('autopos-go').href='https://autopos.cloud/?compose-daily='+date;}

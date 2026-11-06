@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        COMPOSE AutoPOS
 // @description 在 AutoPOS 讀取指定營業日的報表數字，帶回 COMPOSE 門市日報；只讀畫面文字，不讀取帳密。
-// @version     1.0.0
+// @version     1.1.0
 // @match       https://autopos.cloud/*
 // @run-at      document-start
 // @inject-into page
@@ -207,5 +207,304 @@ function runAutoPosUserscript(targetUrl) {
   const begin=()=>{if(begun)return;begun=true;start();};
   if(document.readyState==='complete')begin();else{window.addEventListener('load',begin,{once:true});setTimeout(begin,8000);}
 }
-runAutoPosUserscript("https://wuxia1005.github.io/compose-daily/");
+function parseAutoPosBiReport({date, storeLabel, indicators, receipts, summaryReadAt, receiptsReadAt, capturedAt}) {
+  if (storeLabel !== '(10001) 高雄篤敬店') throw new Error('請在行動 BI 選擇高雄篤敬店（10001）。');
+  const integer = (value, label) => {
+    if (typeof value !== 'string' || !/^(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.0+)?$/.test(value)) {
+      throw new Error(`「${label}」缺少完整數字。請在行動 BI 使用原始數值格式，並核對該日報表。`);
+    }
+    const n = Number(value.replaceAll(',', ''));
+    if (!Number.isSafeInteger(n) || n < 0 || n > 999999999) throw new Error(`「${label}」數字超出日報可帶入範圍。`);
+    return n;
+  };
+  const oneAmount = (rows, label) => {
+    const matches = rows.filter(([name]) => name === label);
+    if (matches.length !== 1) throw new Error(`找不到唯一的「${label}」欄位，請核對行動 BI 報表。`);
+    return integer(matches[0][1], label);
+  };
+  const rejectReversals = rows => {
+    for (const [label, value] of rows) {
+      if (['退款金額', '退款筆數', '退貨金額', '退貨筆數', '退貨單數'].includes(label) && integer(value, label) !== 0) {
+        throw new Error('該日報表包含退款或退貨，請人工核對後填寫。');
+      }
+    }
+  };
+  const expected = [
+    ['(CASH)', '現金', 'cash'],
+    ['(LINEPAY)', 'LINE Pay', 'linepay'],
+    ['(CreditCardMachin)', '聯合信用卡', 'credit'],
+  ];
+  if (receipts.length !== expected.length) throw new Error('行動 BI 收款方式必須完整列出現金、LINE Pay、聯合信用卡三組，請人工核對缺項或其他收款。');
+  rejectReversals(indicators);
+  const store = {date, store: '高雄篤敬店', storeCode: '10001'};
+  const summary = {
+    ...store, queriedAt: summaryReadAt,
+    revenue: oneAmount(indicators, '營業收入'), cups: oneAmount(indicators, '商品件數'),
+  };
+  const receipt = {...store, queriedAt: receiptsReadAt, accountType: '營收'};
+  for (const [code, name, key] of expected) {
+    const matches = receipts.filter(row => row.code === code && row.name === name);
+    if (matches.length !== 1) throw new Error(`找不到唯一的「${name}」收款組別，請人工核對付款方式。`);
+    rejectReversals(matches[0].rows);
+    receipt[key] = oneAmount(matches[0].rows, '收款金額');
+  }
+  return validateAutoPosPacket({v: 1, source: 'autopos', method: 'mobile-bi', date, summary, receipt, capturedAt});
+}
+async function readAutoPosBiReport({
+  doc = document,
+  page = location,
+  now = Date.now,
+  delay = ms => new Promise(resolve => setTimeout(resolve, ms)),
+  timeoutMs = 18000,
+  requestedDate,
+  cancelled = () => false,
+} = {}) {
+  const label = element => (element?.textContent || '').replace(/\s+/g, ' ').trim();
+  const one = (root, selector) => {
+    const elements = root.querySelectorAll(selector);
+    return elements.length === 1 ? elements[0] : null;
+  };
+  const readDay = root => {
+    const picker = one(root, '.date-range-picker');
+    const selected = picker && label(one(picker, '.tab-item.active .tab-title'));
+    if (!['今日', '昨日', '自訂'].includes(selected)) return null;
+    const current = Array.from(picker.querySelectorAll('.date-info-row')).find(row => label(one(row, '.info-label')) === '本期');
+    const displayed = selected === '自訂' ? (current && label(one(current, '.info-value'))) : label(one(picker, '.date-display'));
+    const match = selected === '自訂' ? /^(\d{4}-\d{2}-\d{2})\s*~\s*\1$/.exec(displayed) : /^(\d{4}-\d{2}-\d{2})(?:\s+星期[日天一二三四五六])?$/.exec(displayed);
+    const date = match?.[1];
+    const stamp = Date.parse(date || '');
+    if (!date || !Number.isFinite(stamp) || new Date(stamp).toISOString().slice(0, 10) !== date) {
+      return null;
+    }
+    return date;
+  };
+  const visibleRows = (root, selector) => Array.from(root.querySelectorAll(selector), row => {
+    const values = Array.from(row.querySelectorAll(':scope > .item-title'), label);
+    if (values.length !== 2 || !values[0]) throw new Error('行動 BI 報表欄位格式已變更，請人工核對。');
+    return values;
+  });
+  const deadline = now() + timeoutMs;
+  const wait = async (probe, message) => {
+    for (let attempts = 0; attempts <= Math.ceil(timeoutMs / 150) && now() <= deadline; attempts++) {
+      if (cancelled()) throw new Error('已取消行動 BI 帶入。');
+      const value = probe();
+      if (value) return value;
+      await delay(150);
+    }
+    throw new Error(message);
+  };
+  const readAt = () => new Date(now()).toISOString();
+  const findLabel = (root, selector, text) => Array.from(root.querySelectorAll(selector)).find(element => label(element) === text);
+  const visible = (root, selector) => Array.from(root.querySelectorAll(selector)).find(element => element.getClientRects().length);
+  const selectDay = async home => {
+    const picker = one(home, '.date-range-picker');
+    const taipeiDate = offset => new Date(now() + 8 * 3600000 - offset * 86400000).toISOString().slice(0, 10);
+    const preset = requestedDate === taipeiDate(0) ? '今日' : requestedDate === taipeiDate(1) ? '昨日' : '自訂';
+    const tab = picker && findLabel(picker, '.tab-item .tab-title', preset);
+    if (!tab) throw new Error('找不到行動 BI 的日期選項。');
+    tab.click();
+    if (preset !== '自訂') return;
+
+    const settings = await wait(() => one(picker, '.custom-date-wrapper .settings-button'), '找不到自訂日期設定。');
+    settings.click();
+    const dialog = await wait(() => visible(doc, '.date-picker-dialog'), '無法開啟自訂日期設定。');
+    const dayMode = findLabel(dialog, '.mode-tab', '日');
+    if (!dayMode) throw new Error('找不到自訂日期的「日」模式。');
+    dayMode.click();
+    const period = text => Array.from(dialog.querySelectorAll('.day-picker .period-section')).find(section => label(one(section, '.period-label')) === text);
+    const current = await wait(() => period('本期'), '找不到自訂日期的本期欄位。');
+    const start = current.querySelector('.date-input');
+    if (!start) throw new Error('找不到自訂日期的起日欄位。');
+    start.click();
+
+    const calendar = await wait(() => visible(doc, '.van-calendar'), '無法開啟行動 BI 日曆。');
+    const [year, month, day] = requestedDate.split('-').map(Number);
+    const dateMonth = await wait(() => Array.from(calendar.querySelectorAll('.van-calendar__month')).find(element =>
+      label(one(element, '.van-calendar__month-title')) === `${year}年${month}月`), '找不到指定月份。');
+    const findDay = () => Array.from(dateMonth.querySelectorAll('.van-calendar__day')).find(element =>
+      !element.classList.contains('van-calendar__day--disabled') &&
+      Array.from(element.childNodes).some(node => node.nodeType === 3 && node.textContent.trim() === String(day)));
+    if (!findDay()) dateMonth.scrollIntoView({block:'start'});
+    (await wait(findDay, '指定日期在行動 BI 日曆中無法選取。')).click();
+    (await wait(findDay, '無法設定指定日期為迄日。')).click();
+    const confirmCalendar = await wait(() => {
+      const button = one(calendar, '.van-calendar__confirm');
+      const selected = findDay();
+      return selected?.classList.contains('van-calendar__day--start-end') && button && !button.disabled ? button : null;
+    }, '行動 BI 日曆未選成同一天。');
+    confirmCalendar.click();
+
+    await wait(() => {
+      const inputs = Array.from(current.querySelectorAll('.date-input'), label);
+      return inputs.length === 2 && inputs.every(value => value === requestedDate);
+    }, '行動 BI 的起迄日期與選擇不符。');
+    for (const clear of period('比較期間')?.querySelectorAll('.clear-icon') || []) clear.click();
+    const confirmDialog = one(dialog, '.dialog-footer .confirm-btn');
+    if (!confirmDialog) throw new Error('找不到自訂日期的確定按鈕。');
+    confirmDialog.click();
+  };
+
+  if (page.origin !== 'https://autopos.cloud' || page.pathname !== '/h5be/brandPage') {
+    throw new Error('請先在 Safari 登入 AutoPOS 行動 BI，進入高雄篤敬店的營運首頁，再從分享選單執行。');
+  }
+  const home = one(doc, '.brand-page');
+  if (!home) throw new Error('找不到行動 BI 門市首頁，請先開啟高雄篤敬店。');
+  const storeLabel = label(one(home, '.fixed-header .brand-selector .brand-name'));
+  if (storeLabel !== '(10001) 高雄篤敬店') throw new Error('請先在行動 BI 選擇高雄篤敬店（10001），再從 COMPOSE 帶入。');
+  if (requestedDate && readDay(home) !== requestedDate) {
+    await selectDay(home);
+    await wait(() => readDay(home) === requestedDate, '行動 BI 未切換到指定營業日期，請重試。');
+  }
+  const date = readDay(home);
+  if (!date) throw new Error('請在行動 BI 選擇單日報表並核對營業日期。');
+  const dashboards = Array.from(home.querySelectorAll('.dashboard-card')).filter(card =>
+    ['營運看板', '營運儀表板'].includes(label(one(card, '.dashboard-title'))));
+  if (dashboards.length !== 1) throw new Error('找不到高雄篤敬店的營運看板。');
+  const dashboard = dashboards[0];
+  const allChannels = () => label(one(dashboard, '.channel-tab-item.active .channel-tab-title')) === '全部';
+  if (!allChannels()) {
+    const allTab = findLabel(dashboard, '.channel-tab-item .channel-tab-title', '全部');
+    if (!allTab || !requestedDate) throw new Error('請先在營運看板將訂單渠道切換成「全部」。');
+    allTab.click();
+    await wait(allChannels, '行動 BI 未切換到「全部」通路。');
+  }
+  if (readDay(home) !== date) throw new Error('行動 BI 的營業日期已改變，請重試。');
+  const openDetails = one(dashboard, '.view-details');
+  if (!openDetails || !/^查看(?:明細|詳情)(?:\s*>>)?$/.test(label(openDetails))) throw new Error('找不到營運看板的「查看明細」。');
+  openDetails.click();
+
+  const detail = await wait(() => {
+    if (page.pathname === '/h5be/brandPage') return null;
+    if (page.origin !== 'https://autopos.cloud' || page.pathname !== '/h5be/operationsDetail') {
+      throw new Error('行動 BI 未進入營運明細，請確認登入狀態後重試。');
+    }
+    const root = one(doc, '.operations-detail-page');
+    return root && one(root, '.date-range-picker .tab-item.active .tab-title') ? root : null;
+  }, '讀取行動 BI 營運明細逾時，請確認網路及登入狀態後重試。');
+  const checkDetail = () => {
+    if (page.origin !== 'https://autopos.cloud' || page.pathname !== '/h5be/operationsDetail' || one(doc, '.operations-detail-page') !== detail || readDay(detail) !== date) {
+      throw new Error('行動 BI 頁面或營業日期已改變，請回門市首頁重新執行。');
+    }
+  };
+  const activeCategory = () => label(one(detail, '.category-tab-item.active .tab-title'));
+  const indicators = await wait(() => {
+    checkDetail();
+    if (activeCategory() !== '指標') throw new Error('行動 BI 指標頁已切換，請回門市首頁重試。');
+    const rows = visibleRows(detail, '.indicator-item-wrap .detail-item-cell > .item-row:first-child');
+    return ['營業收入', '商品件數'].every(name => rows.some(([key]) => key === name)) ? rows : null;
+  }, '行動 BI 未提供完整的營業收入及商品件數，請核對該日資料。');
+  const summaryReadAt = readAt();
+
+  const tabs = Array.from(detail.querySelectorAll('.category-tab-item')).filter(tab => label(one(tab, '.tab-title')) === '收款');
+  if (tabs.length !== 1) throw new Error('找不到行動 BI 的「收款」分頁。');
+  tabs[0].click();
+  const receipts = await wait(() => {
+    checkDetail();
+    if (activeCategory() !== '收款') return null;
+    if (detail.querySelector('.loading-more') || !one(detail, '.no-more')) return null;
+    return Array.from(detail.querySelectorAll('.receipts-group'), group => ({
+      code: label(one(group, '.receipts-title .code')),
+      name: label(one(group, '.receipts-title .name')),
+      rows: visibleRows(group, '.receipts-item-wrap .detail-item-cell > .item-row:first-child'),
+    }));
+  }, '行動 BI 收款列表未完整載入，請核對該日收款資料後重試。');
+  const receiptsReadAt = readAt();
+  checkDetail();
+  return parseAutoPosBiReport({date, storeLabel, indicators, receipts, summaryReadAt, receiptsReadAt, capturedAt: readAt()});
+}
+function runAutoPosBiUserscript(targetUrl) {
+  if (window.top !== window || location.origin !== 'https://autopos.cloud') return false;
+  const KEY = 'compose-bi-pending';
+  const hold = 10 * 60 * 1000;
+  const params = new URLSearchParams(location.search);
+  const incoming = params.getAll('compose-bi');
+  let pending = '';
+  try { pending = sessionStorage.getItem(KEY) || ''; } catch {}
+  const [storedDay, expiry] = pending.split('|');
+  const requested = incoming.length > 0;
+  const date = requested ? incoming[0] : storedDay;
+  const expires = requested ? Date.now() + hold : Number(expiry);
+  if (!requested && !(expires > Date.now() && expires <= Date.now() + hold)) return false;
+
+  let stopped = false;
+  let notice;
+  let timer;
+  const finish = hash => {
+    stopped = true;
+    clearTimeout(timer);
+    try { sessionStorage.removeItem(KEY); } catch {}
+    notice?.remove();
+    location.replace(targetUrl + hash);
+  };
+  const fail = message => finish('#autopos-error=' + encodeURIComponent(message));
+  if (requested) {
+    params.delete('compose-bi');
+    const rest = params.toString();
+    history.replaceState(history.state, '', location.pathname + (rest ? '?' + rest : '') + location.hash);
+  }
+  const stamp = Date.parse(date);
+  const today = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+  if (incoming.length > 1 || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(stamp) || new Date(stamp).toISOString().slice(0, 10) !== date || date < '2020-01-01' || date > today) {
+    fail('請選擇有效的營業日期。');
+    return true;
+  }
+  if (requested) {
+    try { sessionStorage.setItem(KEY, `${date}|${expires}`); } catch {
+      fail('Safari 無法保留這次查詢，請確認目前分頁允許網站暫存。');
+      return true;
+    }
+    // Start at the portal so the request is captured before AutoPOS can redirect a signed-out tab.
+    if (location.pathname === '/') {
+      location.replace('https://autopos.cloud/h5be/brandPage');
+      return true;
+    }
+  }
+
+  let message;
+  const show = text => {
+    if (!document.documentElement) return;
+    if (!notice) {
+      notice = document.createElement('div');
+      notice.setAttribute('role', 'status');
+      Object.assign(notice.style, {position:'fixed', left:'12px', right:'12px', top:'calc(12px + env(safe-area-inset-top))', zIndex:'2147483647', padding:'10px 14px', borderRadius:'12px', borderLeft:'6px solid #ffd400', background:'#202020', color:'#fff', font:'14px/1.6 system-ui,sans-serif'});
+      message = document.createElement('span');
+      const cancel = document.createElement('button');
+      cancel.type = 'button';
+      cancel.textContent = '取消並回到日報';
+      Object.assign(cancel.style, {margin:'6px 0 0 10px', minHeight:'36px', border:'0', borderRadius:'6px', padding:'4px 10px', background:'#ffd400', color:'#202020'});
+      cancel.addEventListener('click', () => finish(''));
+      notice.append(message, cancel);
+      document.documentElement.append(notice);
+    }
+    const display = 'COMPOSE 日報｜' + text;
+    if (message.textContent !== display) message.textContent = display;
+  };
+  const waitForHome = () => {
+    if (Date.now() >= expires) return fail('等待 AutoPOS 超過 10 分鐘，請重新帶入。');
+    if (location.pathname === '/h5be/brandPage' && document.querySelector('.brand-page .fixed-header .brand-selector .brand-name')?.textContent.trim() && document.querySelector('.brand-page .dashboard-card')) {
+      show(`正在讀取 ${date} 的行動 BI 報表，請稍候。`);
+      readAutoPosBiReport({requestedDate:date, timeoutMs:40000, cancelled:() => stopped}).then(packet => {
+        if (!stopped) finish('#autopos=' + encodeAutoPosPacket(packet));
+      }).catch(error => {
+        if (!stopped) fail(error.message || '行動 BI 讀取失敗，請重試。');
+      });
+      return;
+    }
+    if (document.querySelector('input[type=password]')) {
+      const version = document.querySelector('select.select-version');
+      if (version && version.value !== 'mobile' && Array.from(version.options).some(option => option.value === 'mobile')) {
+        version.value = 'mobile';
+        version.dispatchEvent(new Event('change', {bubbles:true}));
+      }
+      show(`請以「行動BI」登入 AutoPOS，登入後會接著查詢 ${date}。`);
+    } else {
+      show('正在開啟行動 BI，請稍候。');
+    }
+    timer = setTimeout(waitForHome, 500);
+  };
+  waitForHome();
+  return true;
+}
+const target="https://wuxia1005.github.io/compose-daily/";
+if(!runAutoPosBiUserscript(target))runAutoPosUserscript(target);
 })();
